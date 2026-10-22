@@ -1,5 +1,26 @@
 <!DOCTYPE html>
-<html><head><title>R</title>
-<script>window.location.replace('http://127.0.0.1/ax/tree.php?node=3');</script>
-</head>
-<body>Loading tree...</body></html>
+<html><head><title>R</title></head>
+<body>
+<pre id="out">Scanning...</pre>
+<script>
+const ports = [9200,6379,8080,3000,5601,9090,8888,11211,27017,2375,5432,3306,8983,15672,4369,9000];
+const out = document.getElementById('out');
+let results = '';
+async function scan() {
+  for (const p of ports) {
+    try {
+      const c = new AbortController();
+      const t = setTimeout(() => c.abort(), 2000);
+      const r = await fetch('http://127.0.0.1:' + p + '/', {signal: c.signal});
+      clearTimeout(t);
+      const txt = await r.text();
+      results += 'PORT ' + p + ' OPEN status=' + r.status + ' len=' + txt.length + '\n' + txt.substring(0, 500) + '\n---\n';
+    } catch(e) {
+      results += 'PORT ' + p + ' ' + e.message + '\n';
+    }
+  }
+  out.textContent = results || 'No results';
+}
+scan();
+</script>
+</body></html>
