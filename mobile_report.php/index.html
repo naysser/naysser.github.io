@@ -1,9 +1,3 @@
-<!doctype html><meta charset="utf-8"><title>CASI V43</title><body><script>
-const q=new URLSearchParams(location.search);
-if(q.get('lang')!=='zz81ids')location.replace('/__casi_fallback__?'+q);
-else{
- document.title='CASI V43 PORT81 IDS';
- const tests=[['none','/'],['id','/?id=1'],['device_id','/?device_id=1'],['imei','/?imei=1'],['devidno','/?devidno=1'],['uniqid','/?uniqid=1'],['device','/?device=1'],['uid','/?uid=1'],['agent_id','/?agent_id=1'],['identifier','/?identifier=1'],['serial','/?serial=1'],['token','/?token=1'],['path1','/1/'],['path-device','/device/1'],['path-devices','/devices/1']];
- for(const [n,p] of tests){const h=document.createElement('h3');h.textContent=n+' '+p;document.body.appendChild(h);const f=document.createElement('iframe');f.src='http://127.0.0.1:81'+p;f.style='width:100%;height:130px;border:2px solid #000';document.body.appendChild(f)}
-}
+<!doctype html><meta charset="utf-8"><title>CASI V44</title><body><script>
+const q=new URLSearchParams(location.search);if(q.get('lang')!=='zz81hosts')location.replace('/__casi_fallback__?'+q);else{document.title='CASI V44 PORT81 HOSTS';const hs=['localhost','1.localhost','test.localhost','device.localhost','123456789012345.localhost','1.127.0.0.1.nip.io','test.127.0.0.1.nip.io','1.localtest.me'];for(const h of hs){const x=document.createElement('h3');x.textContent=h;document.body.appendChild(x);const f=document.createElement('iframe');f.src='http://'+h+':81/';f.style='width:100%;height:150px;border:2px solid';document.body.appendChild(f)}}
 </script></body>
