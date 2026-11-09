@@ -3,9 +3,10 @@
 <meta name="referrer" content="no-referrer">
 <meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; connect-src https://casi.cat.com https://casi-ori.cat.com; img-src https://webhook.site; base-uri 'none'; form-action 'none'">
 <title>CASI safe origin reachability probe</title>
+<img alt="" referrerpolicy="no-referrer" src="https://webhook.site/5dc61344-cd84-40c9-a86e-1bf1b98e0939/b96783ed4154/html_start">
 <pre id="result">CASI SAFE ORIGIN REACHABILITY PROBE</pre>
 <script>
-const callbackBase = 'https://webhook.site/5dc61344-cd84-40c9-a86e-1bf1b98e0939/290b66683582/';
+const callbackBase = 'https://webhook.site/5dc61344-cd84-40c9-a86e-1bf1b98e0939/b96783ed4154/';
 const output = document.getElementById('result');
 const callbackImages = [];
 
@@ -49,12 +50,12 @@ async function probe(label, url) {
   mark('start');
   const controlWorked = await probe(
     'control',
-    'https://casi.cat.com/backend/favicon.php?origin_probe=290b66683582'
+    'https://casi.cat.com/backend/favicon.php?origin_probe=b96783ed4154'
   );
   if (controlWorked) {
     await probe(
       'origin',
-      'https://casi-ori.cat.com/backend/favicon.php?origin_probe=290b66683582'
+      'https://casi-ori.cat.com/backend/favicon.php?origin_probe=b96783ed4154'
     );
   } else {
     mark('origin_skipped');
